@@ -1,0 +1,14 @@
+{
+	"folders": [],
+	"settings": {
+		"files.associations": {
+			"cstdint": "c",
+			"scb.h": "c",
+			"adc.h": "c",
+			"gpio.h": "c",
+			"smtc_modem_api.h": "c",
+			"stdio.h": "c",
+			"bitset": "cpp"
+		}
+	}
+}
