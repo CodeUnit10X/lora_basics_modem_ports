@@ -1,10 +1,51 @@
+
+/*!  This is based off Semtech's main_pinp_pong.c example found in SWSD003, see original license below.  
+ *   Use "ral_xxx* calls in Lora Basics Modem library, were original used radio driver directly.  Good
+ *   for checking you have basic TX and RX working without getting into LoRaWAN timing stuff.
+ */
+
+
+/*!
+ * @file      main_ping_pong.c
+ *
+ * @brief     Ping-pong example for Sx126x chip
+ *
+ * The Clear BSD License
+ * Copyright Semtech Corporation 2022. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted (subject to the limitations in the disclaimer
+ * below) provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Semtech corporation nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+ * THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SEMTECH CORPORATION BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #include <print>
 
 #include <cstring>
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "hal.h"
+#include "mcu_hal.h"
 
 #include "smtc_modem_utilities.h"
 #include "smtc_modem_api.h"
@@ -16,7 +57,6 @@
 #include "ral_sx126x_bsp.h"
 
 using namespace std;
-
 
 constexpr uint32_t RF_FREQ_IN_HZ = 903300000;
 static bool    is_master = false;
@@ -76,9 +116,9 @@ void  radio_irq_callback(void* obj) {
 
 int main(int argc, char** argv) {
 	
-    hal_init();
+    mcu_hal_init();
 
-    hal_sleep_ms(1000);
+    mcu_hal_sleep_ms(1000);
 
     ralf_t modem_radio_ = RALF_SX126X_INSTANTIATE(0);
 
@@ -157,7 +197,7 @@ int main(int argc, char** argv) {
             led_on = true;
             //gpio_put(PICO_DEFAULT_LED_PIN, 1);
         }        
-        hal_sleep_ms(2000);
+        mcu_hal_sleep_ms(2000);
     }
 
   	return 0;
@@ -168,7 +208,7 @@ void on_tx_done( ralf_t* context )
 	string msg{(const char*)buffer_tx, sizeof(buffer_tx)-1};
     print("Sent message {}, iteration {}\n", msg, iteration);
 
-    hal_sleep_ms(DELAY_PING_PONG_PACE_MS);
+    mcu_hal_sleep_ms(DELAY_PING_PONG_PACE_MS);
 
     if(RAL_STATUS_OK != ral_sx126x_set_rx(context, ral_sx126x_get_lora_time_on_air_in_ms( &rx_lora_param.pkt_params, &rx_lora_param.mod_params ) + RX_TIMEOUT_VALUE + rand( ) % 500)) {
         print("failed to set ral_sx126x_set_rx\n");
@@ -226,7 +266,7 @@ void on_rx_done(ralf_t* context)
         }
     }
 
-    hal_sleep_ms(DELAY_PING_PONG_PACE_MS + DELAY_BEFORE_TX_MS);
+    mcu_hal_sleep_ms(DELAY_PING_PONG_PACE_MS + DELAY_BEFORE_TX_MS);
 
     buffer_tx[ITERATION_INDEX] = ( uint8_t ) ( iteration );
 

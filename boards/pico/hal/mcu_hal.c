@@ -1,6 +1,5 @@
-//https://www.waveshare.com/wiki/Pico-LoRa-SX1262
-
-#include "hal.h"
+#include "mcu_hal.h"
+#include "mcu_pico_hal.h"
 
 #include "pico/stdlib.h"
 #include "string.h"
@@ -13,7 +12,6 @@
 #include "hardware/spi.h"
 #include "hardware/adc.h"
 #include "pico/rand.h"
-
 
 constexpr uint32_t CTX_MODEM_START          = PICO_FLASH_SIZE_BYTES - (FLASH_SECTOR_SIZE);
 constexpr uint32_t CTX_KEY_MODEM_START      = PICO_FLASH_SIZE_BYTES - (FLASH_SECTOR_SIZE*2);
@@ -47,8 +45,6 @@ struct context_wr_cache {
     uint8_t ctx_fuota[FLASH_SECTOR_SIZE * CTX_FOUTA_NUM_SECTORS];
     uint8_t ctx_str_fwd[FLASH_SECTOR_SIZE * CTX_STORE_AND_FWD_NUM_SECTORS]; 
 };
-
-
 
 constexpr unsigned int MAX_TIMERS = 4;
 
@@ -84,9 +80,8 @@ void dio_gpio_callback(uint gpio, uint32_t events)
 }
 
 void dio_raw_gpio_callback(void) {
-    if(gpio_get_irq_event_mask(PICO_LORA_SX1262_PIN_DIO1) & (GPIO_IRQ_EDGE_RISE)) { //} | GPIO_IRQ_EDGE_FALL)) {
-        printf("pico dio irq 0x%x\n", gpio_get_irq_event_mask(PICO_LORA_SX1262_PIN_DIO1));
-        gpio_acknowledge_irq(PICO_LORA_SX1262_PIN_DIO1, GPIO_IRQ_EDGE_RISE); // | GPIO_IRQ_EDGE_FALL);
+    if(gpio_get_irq_event_mask(PICO_LORA_SX1262_PIN_DIO1) & (GPIO_IRQ_EDGE_RISE)) { 
+        gpio_acknowledge_irq(PICO_LORA_SX1262_PIN_DIO1, GPIO_IRQ_EDGE_RISE);
         if(state_.radio_cb_) {
             state_.radio_cb_(state_.radio_cb_ctx_);
             state_.radio_cb_events_ = gpio_get_irq_event_mask(PICO_LORA_SX1262_PIN_DIO1);
@@ -94,7 +89,7 @@ void dio_raw_gpio_callback(void) {
     }
 }
 
-void hal_context_restore(const enum pico_hal_flash_ctx ctx_type, uint32_t offset, uint8_t* buffer, const uint32_t size ) {
+void mcu_hal_context_restore(const enum pico_hal_flash_ctx ctx_type, uint32_t offset, uint8_t* buffer, const uint32_t size ) {
     //read flash and update cache
     switch(ctx_type) {
         case pico_hal_flash_ctx_modem:
@@ -138,7 +133,7 @@ void hal_context_restore(const enum pico_hal_flash_ctx ctx_type, uint32_t offset
     };  
 }
 
-void hal_context_store(const enum pico_hal_flash_ctx ctx_type, uint32_t offset, const uint8_t* buffer, const uint32_t size ) {
+void mcu_hal_context_store(const enum pico_hal_flash_ctx ctx_type, uint32_t offset, const uint8_t* buffer, const uint32_t size ) {
     uint32_t flash_offset = 0;
     uint8_t* cache_offset = nullptr;
     switch(ctx_type) {
@@ -199,14 +194,14 @@ void hal_context_store(const enum pico_hal_flash_ctx ctx_type, uint32_t offset, 
     restore_interrupts (ints);
 }
 
-void hal_erase_flash_page(uint32_t flash_offset, uint32_t nb_pages) {
+void mcu_hal_erase_flash_page(uint32_t flash_offset, uint32_t nb_pages) {
     uint32_t ints = save_and_disable_interrupts();
     uint32_t page = flash_offset / FLASH_SECTOR_SIZE;
     flash_range_erase(CTX_STORE_AND_FWD_START + page, nb_pages);
     restore_interrupts (ints);    
 }
 
-void hal_init() {
+void mcu_hal_init() {
 
     stdio_init_all();
 
@@ -225,7 +220,7 @@ void hal_init() {
     state_.pool_ = alarm_pool_create(2, 16); //alarm_pool_create_with_unused_hardware_alarm(1);
     state_.alarm_num_ = alarm_pool_hardware_alarm_num(state_.pool_);
 
-    hal_spi_init();     
+    mcu_hal_spi_init();     
 
     //ADC for battery voltage
     adc_init();
@@ -240,20 +235,20 @@ void hal_init() {
     gpio_put(PICO_LORA_SX1262_PIN_RESET, 0);
 }
 
-uint32_t hal_get_time_in_ms() {
+uint32_t mcu_hal_get_time_in_ms() {
     absolute_time_t t = get_absolute_time();
     return to_ms_since_boot(t);	    
 }
 
-void hal_sleep_ms(uint32_t ms) {
+void mcu_hal_sleep_ms(uint32_t ms) {
     sleep_ms(ms);
 }
 
-bool hal_gpio_get(unsigned int gpio) {
+bool mcu_hal_gpio_get(unsigned int gpio) {
     return gpio_get(gpio);
 }
 
-void hal_gpio_set(unsigned int gpio, bool state) {
+void mcu_hal_gpio_set(unsigned int gpio, bool state) {
     gpio_put(gpio, state);
 }
 
@@ -266,7 +261,7 @@ static int64_t alarm_callback(alarm_id_t id, void *user_data) {
 }
 
 
-void hal_start_timer(uint32_t milliseconds, struct user_data_tm user_data) {
+void mcu_hal_start_timer(uint32_t milliseconds, struct user_data_tm user_data) {
     state_.user_data_ = user_data;
     state_.timer_ms_ = milliseconds;
     if(!state_.timer_started_) {
@@ -278,7 +273,7 @@ void hal_start_timer(uint32_t milliseconds, struct user_data_tm user_data) {
     state_.alarm_num_ = alarm_pool_add_alarm_at(state_.pool_, delayed_by_ms(get_absolute_time(), milliseconds), alarm_callback, NULL, true); 
 }
 
-void hal_stop_timer() {
+void mcu_hal_stop_timer() {
     if(state_.timer_started_) {
         alarm_pool_cancel_alarm(state_.pool_, state_.alarm_num_);
         state_.timer_started_ = false;
@@ -289,18 +284,18 @@ void hal_stop_timer() {
  *   Disable irqs used by the mode, timer/alarm and dio
  * 
  */ 
-void hal_disable_irqs() {
+void mcu_hal_disable_irqs() {
     //disable the alarm used as a repeating timer
     hw_clear_bits(&timer_hw->inte, 1u << state_.alarm_num_); 
     irq_set_enabled(IO_IRQ_BANK0, false);
 }
 
-void hal_enable_irqs() {
+void mcu_hal_enable_irqs() {
     hw_set_bits(&timer_hw->inte, 1u <<  state_.alarm_num_);
     irq_set_enabled(IO_IRQ_BANK0, true);
 }
 
-void hal_spi_init() {
+void mcu_hal_spi_init() {
 	//spi 1 defaults
     spi_init(spi1, 10 * 1000 * 1000);
     spi_set_format(spi1, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
@@ -314,7 +309,7 @@ void hal_spi_init() {
     gpio_put(PICO_LORA_SX1262_PIN_CS, 1);    
 }
 
-uint32_t hal_rng_get_random_in_range(const uint32_t val_1, const uint32_t val_2) {
+uint32_t mcu_hal_rng_get_random_in_range(const uint32_t val_1, const uint32_t val_2) {
     if( val_1 <= val_2 ) {
         return ( uint32_t )( ( get_rand_32() % ( val_2 - val_1 + 1 ) ) + val_1 );
     } else {
@@ -322,26 +317,26 @@ uint32_t hal_rng_get_random_in_range(const uint32_t val_1, const uint32_t val_2)
     }    
 }
 
-uint16_t hal_adc_read(unsigned int channel) {
+uint16_t mcu_hal_adc_read(unsigned int channel) {
     adc_select_input(channel);
     return adc_read();
 }
 
-int8_t hal_read_temp() {
+int8_t mcu_hal_read_temp() {
     adc_select_input(ADC_TEMPERATURE_CHANNEL_NUM);
     uint16_t v_raw = adc_read() * (3.3 / (1<<12));
     float temp_celcius = 27 - (v_raw - 0.706) / 0.001721;
     return (int8_t)temp_celcius;
 }
 
-uint16_t hal_read_batt_voltage() {
+uint16_t mcu_hal_read_batt_voltage() {
     adc_select_input(0);
     float v_raw = adc_read() * ADC_VOLT_CONV;
     uint16_t capacity = floorf((LIPO_1S_COE_1 * v_raw) - LIPO_1S_COE_2) * 254;
     return capacity;    
 }
 
-void hal_config_radio_irq(void ( *callback )( void* context ), void* context) {
+void mcu_hal_config_radio_irq(void ( *callback )( void* context ), void* context) {
     //disable interrupts in case we're changing handle
     irq_set_enabled(IO_IRQ_BANK0, false);
     state_.radio_cb_ = callback;
@@ -350,6 +345,6 @@ void hal_config_radio_irq(void ( *callback )( void* context ), void* context) {
     irq_set_enabled(IO_IRQ_BANK0, true);
 }
 
-void hal_clear_radio_irq(void) {
+void mcu_hal_clear_radio_irq(void) {
     //This is handled by pico sdk
 }

@@ -48,7 +48,11 @@ Create a device profile.
 
 Create an appliction and add a device.
 
+![image](docs/images/chirp2.png)
 
+![image](docs/images/chirp3.png)
+
+![image](docs/images/chirp4.png)
 
 
 

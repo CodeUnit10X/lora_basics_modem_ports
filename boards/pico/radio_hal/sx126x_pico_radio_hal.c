@@ -1,6 +1,7 @@
 
 #include "sx126x_hal.h"
-#include "hal.h"
+#include "mcu_hal.h"
+#include "mcu_pico_hal.h"
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/structs/scb.h"
@@ -70,9 +71,9 @@ sx126x_hal_status_t sx126x_hal_read( const void* context, const uint8_t* command
 }
 
 sx126x_hal_status_t sx126x_hal_reset( const void* context ) {
-    hal_gpio_set(PICO_LORA_SX1262_PIN_RESET, false);
+    mcu_hal_gpio_set(PICO_LORA_SX1262_PIN_RESET, false);
     sleep_us(10000);
-    hal_gpio_set(PICO_LORA_SX1262_PIN_RESET, true);    
+    mcu_hal_gpio_set(PICO_LORA_SX1262_PIN_RESET, true);    
     sleep_us(10000);
     radio_mode = RADIO_AWAKE;
     return SX126X_HAL_STATUS_OK;
@@ -87,7 +88,7 @@ sx126x_hal_status_t sx126x_hal_wakeup( const void* context ) {
 
 static void sx126x_hal_wait_on_busy( void )
 {
-    while(hal_gpio_get(PICO_LORA_SX1262_PIN_BUSY) == true)
+    while(mcu_hal_gpio_get(PICO_LORA_SX1262_PIN_BUSY) == true)
     {
     };
 }
@@ -100,9 +101,9 @@ static void sx126x_hal_check_device_ready( void )
     if( radio_mode != RADIO_SLEEP ) {
         sx126x_hal_wait_on_busy();
     } else {
-        hal_gpio_set(PICO_LORA_SX1262_PIN_CS, false);
+        mcu_hal_gpio_set(PICO_LORA_SX1262_PIN_CS, false);
         sx126x_hal_wait_on_busy( );
-        hal_gpio_set(PICO_LORA_SX1262_PIN_CS, true);
+        mcu_hal_gpio_set(PICO_LORA_SX1262_PIN_CS, true);
         radio_mode = RADIO_AWAKE;
     }
 }

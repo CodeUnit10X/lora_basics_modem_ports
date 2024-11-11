@@ -2,15 +2,15 @@
 #include <cstdint>
 #include <print>
 
-#include "hal.h"
+#include "mcu_hal.h"
 #include "tests.h"
 
 int main(int argc, char** argv) {
 
     //Initialize the pico specific hal functions
-    hal_init();
+    mcu_hal_init();
 
-    hal_sleep_ms(3000);
+    mcu_hal_sleep_ms(3000);
 
     std::print("Starting modem porting test...\n");
 

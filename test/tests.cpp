@@ -14,7 +14,7 @@
 
 #include "sx126x.h"
 
-#include "hal.h"
+#include "mcu_hal.h"
 
 #define NB_LOOP_TEST_SPI 2
 
@@ -836,7 +836,7 @@ bool test::porting_test_sleep_ms() {
         // Do nothing
     }
 
-    hal_sleep_ms( sleep_ms );
+    mcu_hal_sleep_ms( sleep_ms );
 
     uint32_t stop_time_ms = smtc_modem_hal_get_time_in_ms( );
     uint32_t time         = stop_time_ms - start_time_ms;
@@ -875,7 +875,7 @@ bool test::porting_test_timer_irq_low_power() {
     smtc_modem_hal_start_timer( timer_ms, timer_irq_callback,
                                 this );  // Warning this function takes ~3,69 ms for STM32L4
 
-    hal_sleep_ms( sleep_ms1 );
+    mcu_hal_sleep_ms( sleep_ms1 );
 
     if( timer_irq_raised_ == false )
     {

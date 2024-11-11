@@ -40,14 +40,14 @@
 #include <cstring>
 #include <print>
 
-#include "hal.h"
+#include "mcu_hal.h"
 
 #include "smtc_modem_api.h"
 #include "smtc_modem_utilities.h"
 #include "smtc_modem_hal.h"
 #include "smtc_modem_relay_api.h"
 
-//On the server side this is the Application key for 1.0.X servers
+/*Update these accordingly, depending on system used*/
 #define USER_LORAWAN_DEVICE_EUI                        \
     {                                                  \
         0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x01, 0x05 \
@@ -104,9 +104,9 @@ int main(int argc, char** argv)
 {
     uint32_t sleep_time_ms = 0;
 
-    hal_init();
+    mcu_hal_init();
 
-    hal_sleep_ms(1000);
+    mcu_hal_sleep_ms(1000);
 
     uint32_t error_ppm = 0;
     smtc_modem_get_crystal_error_ppm(&error_ppm);
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
         println("setting crystal error ppm");
     }
 
-    hal_sleep_ms(1000);
+    mcu_hal_sleep_ms(1000);
     
     smtc_modem_init(&modem_event_callback);
 
@@ -136,8 +136,8 @@ void modem_event_callback( void )
     printf("Modem event callback\n");
 
     smtc_modem_event_t current_event;
-    uint8_t            event_pending_count;
-    uint8_t            stack_id = STACK_ID;
+    uint8_t event_pending_count;
+    uint8_t stack_id = STACK_ID;
 
     // Continue to read modem event until all event has been processed
     do
