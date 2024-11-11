@@ -39,17 +39,17 @@ https://www.waveshare.com/wiki/SX1262_XXXM_LoRaWAN/GNSS_HAT
 
 The build system uses cmake on a Linux system.
 
-**Currently on the sx1262 is supported.**
+**Currently only the sx1262 radio is supported.**
 
-**set your region corrently for your country, in the top level CMakeLists.txt i.e. set(RADIO_REGION US_915)**
+**set your region correctly for your country, in the top level CMakeLists.txt i.e. -DRADIO_REGION=US_915 **
 
-PLATFORM_BOARD [ PICO | PICO2 | ZERO_2W ]
+PLATFORM_BOARD [ PICO | PICO2 | RPI_LINUX ]
 
-cmake -DPLATFORM_BOARD="PICO" -DCMAKE_BUILD_TYPE=Release ..
+cmake -DPLATFORM_BOARD="PICO" -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..
 
 The linux userspace version was intended to be used with my buildroot images, to build standalone you'll need to specify a toolchain file
 
-cmake -DPLATFORM_BOARD="ZERO_2W" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path to your toolchainfile.cmake> ..
+cmake -DPLATFORM_BOARD="RPI_LINUX" -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path to your toolchainfile.cmake> ..
 
 # System Setup
 

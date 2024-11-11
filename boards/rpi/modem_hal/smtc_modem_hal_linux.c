@@ -1,5 +1,5 @@
 #include "smtc_modem_hal.h"
-#include "hal.h"
+#include "mcu_hal.h"
 #include <stdlib.h>
 #include <sys/time.h>
 #include <stdarg.h>
@@ -8,8 +8,8 @@
 #define MS_TO_SECOND 1000
 
 void smtc_modem_hal_reset_mcu( void ) {
-    //i dont think this is the intention on general os
-    system("reboot");
+    //TODO if anything on panic, just log it
+    //system("reboot");
 }
 
 void smtc_modem_hal_reload_wdog( void ) {
@@ -17,11 +17,11 @@ void smtc_modem_hal_reload_wdog( void ) {
 }
 
 uint32_t smtc_modem_hal_get_time_in_s( void ) {
-    return hal_get_time_in_ms()/MS_TO_SECOND;	
+    return mcu_hal_get_time_in_ms()/MS_TO_SECOND;	
 }
 
 uint32_t smtc_modem_hal_get_time_in_ms( void ) {
-    return hal_get_time_in_ms();
+    return mcu_hal_get_time_in_ms();
 }
 
 void smtc_modem_hal_set_offset_to_test_wrapping( const uint32_t offset_to_test_wrapping ) {
@@ -30,21 +30,21 @@ void smtc_modem_hal_set_offset_to_test_wrapping( const uint32_t offset_to_test_w
 
 void smtc_modem_hal_start_timer( const uint32_t milliseconds, void ( *callback )( void* context ), void* context ) {
     struct user_data_tm user_data = {callback, context};
-    hal_start_timer(milliseconds, user_data); 
+    mcu_hal_start_timer(milliseconds, user_data); 
 }
 
 void smtc_modem_hal_stop_timer( void ) {
-    hal_stop_timer();
+    mcu_hal_stop_timer();
 }
 
 void smtc_modem_hal_disable_modem_irq( void ) {
     //printf("smtc_modem_hal_disable_modem_irq\n");       
-    hal_disable_irqs();
+    mcu_hal_disable_irqs();
 }
 
 void smtc_modem_hal_enable_modem_irq( void ) {
     //printf("smtc_modem_hal_enable_modem_irq\n");       
-    hal_enable_irqs();
+    mcu_hal_enable_irqs();
 }
 
 void smtc_modem_hal_context_restore( const modem_context_type_t ctx_type, uint32_t offset, uint8_t* buffer,
@@ -64,7 +64,7 @@ void smtc_modem_hal_on_panic( uint8_t* func, uint32_t line, const char* fmt, ...
 }
 
 uint32_t smtc_modem_hal_get_random_nb_in_range( const uint32_t val_1, const uint32_t val_2 ) {
-    return hal_rng_get_random_in_range(val_1, val_2);
+    return mcu_hal_rng_get_random_in_range(val_1, val_2);
 }
 
 /*
@@ -178,9 +178,9 @@ void smtc_modem_hal_user_lbm_irq( void ) {
 }
 
 void smtc_modem_hal_irq_config_radio_irq( void ( *callback )( void* context ), void* context ) {
-    hal_config_radio_irq(callback, context);
+    mcu_hal_config_radio_irq(callback, context);
 }
 
 void smtc_modem_hal_radio_irq_clear_pending( void ) {
-    hal_clear_radio_irq();
+    mcu_hal_clear_radio_irq();
 }

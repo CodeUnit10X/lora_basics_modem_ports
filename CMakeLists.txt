@@ -18,7 +18,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 #set target radio and region
 set(RADIO_TARGET sx1262)
-set(RADIO_REGION US_915)
+
+#set(RADIO_REGION US_915)
 
 #set the platform board
 if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
@@ -50,8 +51,10 @@ if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
     string(REPLACE ";" "|" platform_libs "${platform_libs}")
 
     message(STATUS "hal_sources ${hal_sources}")
-elseif(${PLATFORM_BOARD} STREQUAL ZERO_2W)
-    set(hal_sources hal/hal.cpp
+elseif(${PLATFORM_BOARD} STREQUAL RPI_LINUX)
+    set(ignore "${PICO_BOARD}${PICO_PLATFORM}")
+
+    set(hal_sources hal/mcu_hal.cpp
                     modem_hal/smtc_modem_hal_linux.c
                     radio_hal/ral_sx126x_bsp.c)
 
@@ -61,9 +64,11 @@ elseif(${PLATFORM_BOARD} STREQUAL ZERO_2W)
     string(REPLACE ";" "|" hal_sources "${hal_sources}")
 
     set(hal_includes ${CMAKE_SOURCE_DIR}/boards/common ${CMAKE_SOURCE_DIR}/boards/rpi/hal)
+
+    string(REPLACE ";" "|" hal_includes "${hal_includes}")
 else()
 
-    message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|ZERO_2W]")
+    message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|RPI_LINUX]")
 
 endif()
 
