@@ -4,6 +4,19 @@ This is a port of Semtechs Lora Basics Modem API for several Waveshare Raspberry
 
 See:  https://github.com/Lora-net/SWL2001
 
+**Currently only PICO version is working with OTAA.  PICO2 and the Linux userspace need some tuning of the RX windows for LoraWAN.  They do however 
+work for general Lora Comms, see ping_pong example.**
+
+There are a couple real basic examples, based off Semtech's examples, mainly the following:
+
+## otaa_uplink
+
+This is simple otaa connection to a LoRaWAN gateway and sends up some periodic uplinks.
+
+## ping_pong
+
+This is basic modem RX and TX between two modems.
+
 # Hardware
 
 The following hardware was used for testing and development
@@ -24,15 +37,19 @@ https://www.waveshare.com/wiki/SX1262_XXXM_LoRaWAN/GNSS_HAT
 
 # Building:
 
-The build system used cmake on a Linux system.
+The build system uses cmake on a Linux system.
+
+**Currently on the sx1262 is supported.**
+
+**set your region corrently for your country, in the top level CMakeLists.txt i.e. set(RADIO_REGION US_915)**
 
 PLATFORM_BOARD [ PICO | PICO2 | ZERO_2W ]
 
-cmake -DPLATFORM_BOARD="PICO2" -DCMAKE_BUILD_TYPE=Release ..
+cmake -DPLATFORM_BOARD="PICO" -DCMAKE_BUILD_TYPE=Release ..
 
-For non-pico standalone builds (outside buildroot), you'll need to specify a toolchain file
+The linux userspace version was intended to be used with my buildroot images, to build standalone you'll need to specify a toolchain file
 
-cmake -DPLATFORM_BOARD="ZERO_2W" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/home/jcoffman/work/buildroot_rpi2w/output/host/share/buildroot/toolchainfile.cmake ..
+cmake -DPLATFORM_BOARD="ZERO_2W" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path to your toolchainfile.cmake> ..
 
 # System Setup
 
