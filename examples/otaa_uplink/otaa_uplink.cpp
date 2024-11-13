@@ -50,17 +50,17 @@
 /*Update these accordingly, depending on system used*/
 #define USER_LORAWAN_DEVICE_EUI                        \
     {                                                  \
-        0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x01, 0x04 \
+        0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xBE, 0xEF \
     }
 
-#define USER_LORAWAN_APP_KEY                                                                           \
-    {                                                                                                  \
-        0xE9, 0x31, 0xD0, 0x88, 0xB9, 0xA5, 0x75, 0x46, 0x97, 0x72, 0xD8, 0xC3, 0xB4, 0xFB, 0x31, 0x93 \
-    }                                                                                                  \
+#define USER_LORAWAN_APP_KEY                                                                          \
+    {                                                                                                 \
+       0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x88 \
+    }                                                                                                 \
 
-#define USER_LORAWAN_NETWORK_KEY                                                                           \
+#define USER_LORAWAN_NETWORK_KEY                                                                       \
     {                                                                                                  \
-        0xE9, 0x31, 0xD0, 0x88, 0xB9, 0xA5, 0x75, 0x46, 0x97, 0x72, 0xD8, 0xC3, 0xB4, 0xFB, 0x31, 0x93 \
+        0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x88 \
     }       
 
 #define USER_LORAWAN_JOIN_EUI                          \
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
     smtc_modem_get_crystal_error_ppm(&error_ppm);
     println("crystal error ppm currently set to = {}", error_ppm);
 
-    //if(smtc_modem_set_crystal_error_ppm(error_ppm*2) == SMTC_MODEM_RC_OK) {
+    //if(smtc_modem_set_crystal_error_ppm(1000000) == SMTC_MODEM_RC_OK) {
     //    println("setting crystal error ppm");
     //}
 

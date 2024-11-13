@@ -57,7 +57,7 @@
 #include "ral_sx126x_bsp.h"
 
 using namespace std;
-
+                                   
 constexpr uint32_t RF_FREQ_IN_HZ = 903300000;
 static bool    is_master = false;
 static uint16_t iteration       = 0;

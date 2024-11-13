@@ -102,7 +102,7 @@ uint8_t smtc_modem_hal_get_battery_level( void ) {
 
 int8_t smtc_modem_hal_get_board_delay_ms( void ) {
     //This can be fine tuned see section 8 of porting guide
-    return 0;
+    return -5;
 }
 
 void smtc_modem_hal_print_trace( const char* fmt, ... ) {
