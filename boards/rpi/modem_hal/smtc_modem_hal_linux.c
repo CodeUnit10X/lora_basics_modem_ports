@@ -49,13 +49,16 @@ void smtc_modem_hal_enable_modem_irq( void ) {
 
 void smtc_modem_hal_context_restore( const modem_context_type_t ctx_type, uint32_t offset, uint8_t* buffer,
                                      const uint32_t size ) {
+    mcu_hal_context_restore(ctx_type, offset, buffer, size);
 }
 
 void smtc_modem_hal_context_store( const modem_context_type_t ctx_type, uint32_t offset, const uint8_t* buffer,
-                                   const uint32_t size ) {   
+                                   const uint32_t size ) {
+    mcu_hal_context_store(ctx_type, offset, buffer, size);                               
 }
 
 void smtc_modem_hal_context_flash_pages_erase( const modem_context_type_t ctx_type, uint32_t offset, uint8_t nb_page ) {
+    mcu_hal_erase_flash_page( offset, nb_page);
 }
 
 void smtc_modem_hal_on_panic( uint8_t* func, uint32_t line, const char* fmt, ... ) {
@@ -68,14 +71,14 @@ uint32_t smtc_modem_hal_get_random_nb_in_range( const uint32_t val_1, const uint
 }
 
 /*
-  Not used on sharewave 1262
+  Not used on sharewave 1262 hats (other than pico)
 */
 void smtc_modem_hal_start_radio_tcxo( void ) {
     return;
 }
 
 /*
-  Not used on sharewave 1262
+  Not used on sharewave 1262 hats (other than pico)
 */
 void smtc_modem_hal_stop_radio_tcxo( void ) {
     return;

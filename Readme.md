@@ -4,8 +4,6 @@ This is a port of Semtechs Lora Basics Modem API for several Waveshare Raspberry
 
 See:  https://github.com/Lora-net/SWL2001
 
-**Currently only PICO/PICO2 version is working with OTAA. Linux userspace need some tuning of the RX windows for LoraWAN, it's more a experiment than anything currently.  They do however 
-work for general Lora Comms, see ping_pong example.**
 
 There are a couple real basic examples, based off Semtech's examples, mainly the following:
 

@@ -52,9 +52,7 @@ void ral_sx126x_bsp_get_xosc_cfg( const void* context, ral_xosc_cfg_t* xosc_cfg,
 
 void ral_sx126x_bsp_get_trim_cap( const void* context, uint8_t* trimming_cap_xta, uint8_t* trimming_cap_xtb )
 {
-    //Both caps are 12pf set accordingly, see Table 4-1 in datasheet
-    *trimming_cap_xta = 0x02;
-    *trimming_cap_xtb = 0x02;
+    // We'll let the driver choose these
 }
 
 void ral_sx126x_bsp_get_rx_boost_cfg( const void* context, bool* rx_boost_is_activated )
