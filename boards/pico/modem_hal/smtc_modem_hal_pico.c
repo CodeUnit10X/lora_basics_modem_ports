@@ -54,22 +54,22 @@ void smtc_modem_hal_context_restore( const modem_context_type_t ctx_type, uint32
                                      const uint32_t size ) {
     switch(ctx_type) {
     case CONTEXT_MODEM:
-        mcu_hal_context_restore(pico_hal_flash_ctx_modem, offset, buffer, size);        
+        mcu_hal_context_restore(hal_flash_ctx_modem, offset, buffer, size);        
         break;
     case CONTEXT_KEY_MODEM:
-        mcu_hal_context_restore(pico_hal_flash_ctx_key_modem, offset, buffer, size);           
+        mcu_hal_context_restore(hal_flash_ctx_key_modem, offset, buffer, size);           
         break;
     case CONTEXT_LORAWAN_STACK:
-        mcu_hal_context_restore(pico_hal_flash_ctx_lora_stack, offset, buffer, size);           
+        mcu_hal_context_restore(hal_flash_ctx_lora_stack, offset, buffer, size);           
         break;
     case CONTEXT_FUOTA:
-        mcu_hal_context_restore(pico_hal_flash_ctx_fuota, offset, buffer, size);           
+        mcu_hal_context_restore(hal_flash_ctx_fuota, offset, buffer, size);           
         break;
     case CONTEXT_SECURE_ELEMENT:
-        mcu_hal_context_restore(pico_hal_flash_ctx_sc, offset, buffer, size);           
+        mcu_hal_context_restore(hal_flash_ctx_sc, offset, buffer, size);           
         break;
     case CONTEXT_STORE_AND_FORWARD:
-        mcu_hal_context_restore(pico_hal_flash_ctx_str_fwd, offset, buffer, size);           
+        mcu_hal_context_restore(hal_flash_ctx_str_fwd, offset, buffer, size);           
         break;
     default:
         break;
@@ -80,22 +80,22 @@ void smtc_modem_hal_context_store( const modem_context_type_t ctx_type, uint32_t
                                    const uint32_t size ) {
     switch(ctx_type) {
     case CONTEXT_MODEM:
-        mcu_hal_context_store(pico_hal_flash_ctx_modem, offset, buffer, size);
+        mcu_hal_context_store(hal_flash_ctx_modem, offset, buffer, size);
         break;
     case CONTEXT_KEY_MODEM:
-        mcu_hal_context_store(pico_hal_flash_ctx_key_modem, offset, buffer, size);        
+        mcu_hal_context_store(hal_flash_ctx_key_modem, offset, buffer, size);        
         break;
     case CONTEXT_LORAWAN_STACK:
-        mcu_hal_context_store(pico_hal_flash_ctx_lora_stack, offset, buffer, size);   
+        mcu_hal_context_store(hal_flash_ctx_lora_stack, offset, buffer, size);   
         break;
     case CONTEXT_FUOTA:
-        mcu_hal_context_store(pico_hal_flash_ctx_fuota, offset, buffer, size);           
+        mcu_hal_context_store(hal_flash_ctx_fuota, offset, buffer, size);           
         break;
     case CONTEXT_SECURE_ELEMENT:
-        mcu_hal_context_store(pico_hal_flash_ctx_sc, offset, buffer, size);           
+        mcu_hal_context_store(hal_flash_ctx_sc, offset, buffer, size);           
         break;
     case CONTEXT_STORE_AND_FORWARD:
-        mcu_hal_context_store(pico_hal_flash_ctx_str_fwd, offset, buffer, size);           
+        mcu_hal_context_store(hal_flash_ctx_str_fwd, offset, buffer, size);           
         break;
     default:
         break;

@@ -89,40 +89,40 @@ void dio_raw_gpio_callback(void) {
     }
 }
 
-void mcu_hal_context_restore(const enum pico_hal_flash_ctx ctx_type, uint32_t offset, uint8_t* buffer, const uint32_t size ) {
+void mcu_hal_context_restore(const enum hal_flash_ctx ctx_type, uint32_t offset, uint8_t* buffer, const uint32_t size ) {
     //read flash and update cache
     switch(ctx_type) {
-        case pico_hal_flash_ctx_modem:
+        case hal_flash_ctx_modem:
         {
             char *p = (char *)XIP_BASE + CTX_MODEM_START;
             memcpy(buffer, p, size);
             break;
         }
-        case pico_hal_flash_ctx_key_modem:
+        case hal_flash_ctx_key_modem:
         {
             char *p = (char *)XIP_BASE + CTX_KEY_MODEM_START;
             memcpy(buffer, p, size);            
             break;
         }
-        case pico_hal_flash_ctx_lora_stack:
+        case hal_flash_ctx_lora_stack:
         {
             char *p = (char *)XIP_BASE + CTX_LORAWAN_STACK_START + offset;
             memcpy(buffer, p, size);            
             break;
         }
-        case pico_hal_flash_ctx_sc:
+        case hal_flash_ctx_sc:
         {
             char *p = (char *)XIP_BASE + CTX_SECURE_ELEMENT_START + offset;
             memcpy(buffer, p, size);              
             break;
         }
-        case pico_hal_flash_ctx_fuota:
+        case hal_flash_ctx_fuota:
         {
             char *p = (char *)XIP_BASE + CTX_FUOTA_STACK_START + offset;
             memcpy(buffer, p, size);              
             break;
         }
-        case pico_hal_flash_ctx_str_fwd:
+        case hal_flash_ctx_str_fwd:
         {
             char *p = (char *)XIP_BASE + CTX_STORE_AND_FWD_START + offset;
             memcpy(buffer, p, size);              
@@ -133,39 +133,39 @@ void mcu_hal_context_restore(const enum pico_hal_flash_ctx ctx_type, uint32_t of
     };  
 }
 
-void mcu_hal_context_store(const enum pico_hal_flash_ctx ctx_type, uint32_t offset, const uint8_t* buffer, const uint32_t size ) {
+void mcu_hal_context_store(const enum hal_flash_ctx ctx_type, uint32_t offset, const uint8_t* buffer, const uint32_t size ) {
     uint32_t flash_offset = 0;
     uint8_t* cache_offset = nullptr;
     switch(ctx_type) {
-        case pico_hal_flash_ctx_modem:
+        case hal_flash_ctx_modem:
         {
             memcpy(&state_.ctx_cache_.ctx_modem, buffer, size);
             flash_offset = CTX_MODEM_START;
             cache_offset = (uint8_t*)(&state_.ctx_cache_.ctx_modem);
             break;
         }
-        case pico_hal_flash_ctx_key_modem:
+        case hal_flash_ctx_key_modem:
         {
             memcpy(&state_.ctx_cache_.ctx_key_modem, buffer, size);
             flash_offset = CTX_KEY_MODEM_START;
             cache_offset = (uint8_t*)(&state_.ctx_cache_.ctx_key_modem);
             break;
         }
-        case pico_hal_flash_ctx_lora_stack:
+        case hal_flash_ctx_lora_stack:
         {
             memcpy(&state_.ctx_cache_.ctx_lora_stack + offset, buffer, size);
             flash_offset = CTX_LORAWAN_STACK_START;
             cache_offset = (uint8_t*)(&state_.ctx_cache_.ctx_lora_stack);           
             break;
         }
-        case pico_hal_flash_ctx_sc:
+        case hal_flash_ctx_sc:
         {
             memcpy(&state_.ctx_cache_.ctx_sc, buffer, size);
             flash_offset = CTX_SECURE_ELEMENT_START;
             cache_offset = (uint8_t*)(&state_.ctx_cache_.ctx_sc);
             break;
         }
-        case pico_hal_flash_ctx_fuota:
+        case hal_flash_ctx_fuota:
         {
             memcpy(&state_.ctx_cache_.ctx_fuota + offset, buffer, size);
             //compute the sector
@@ -174,7 +174,7 @@ void mcu_hal_context_store(const enum pico_hal_flash_ctx ctx_type, uint32_t offs
             cache_offset = (uint8_t*)(&state_.ctx_cache_.ctx_fuota);                            
             break;
         }
-        case pico_hal_flash_ctx_str_fwd:
+        case hal_flash_ctx_str_fwd:
         {
             memcpy(&state_.ctx_cache_.ctx_str_fwd + offset, buffer, size);
             //compute the sector
@@ -217,7 +217,7 @@ void mcu_hal_init() {
 
 
     //get an unused hardware alarm for our timers
-    state_.pool_ = alarm_pool_create(2, 16); //alarm_pool_create_with_unused_hardware_alarm(1);
+    state_.pool_ = alarm_pool_create(2, 16);
     state_.alarm_num_ = alarm_pool_hardware_alarm_num(state_.pool_);
 
     mcu_hal_spi_init();     
@@ -244,12 +244,13 @@ void mcu_hal_sleep_ms(uint32_t ms) {
     sleep_ms(ms);
 }
 
-bool mcu_hal_gpio_get(unsigned int gpio) {
+int mcu_hal_gpio_get(unsigned int gpio) {
     return gpio_get(gpio);
 }
 
-void mcu_hal_gpio_set(unsigned int gpio, bool state) {
+int mcu_hal_gpio_set(unsigned int gpio, bool state) {
     gpio_put(gpio, state);
+    return 0;
 }
 
 //we only have one timer/alarm

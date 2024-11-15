@@ -8,8 +8,7 @@
 #define MS_TO_SECOND 1000
 
 void smtc_modem_hal_reset_mcu( void ) {
-    //TODO if anything on panic, just log it
-    //system("reboot");
+    //This is used on baremetal/rtos 
 }
 
 void smtc_modem_hal_reload_wdog( void ) {
@@ -37,13 +36,11 @@ void smtc_modem_hal_stop_timer( void ) {
     mcu_hal_stop_timer();
 }
 
-void smtc_modem_hal_disable_modem_irq( void ) {
-    //printf("smtc_modem_hal_disable_modem_irq\n");       
+void smtc_modem_hal_disable_modem_irq( void ) {     
     mcu_hal_disable_irqs();
 }
 
-void smtc_modem_hal_enable_modem_irq( void ) {
-    //printf("smtc_modem_hal_enable_modem_irq\n");       
+void smtc_modem_hal_enable_modem_irq( void ) {    
     mcu_hal_enable_irqs();
 }
 
@@ -172,6 +169,7 @@ uint16_t smtc_modem_hal_store_and_forward_get_number_of_pages( void ) {
 }
 
 uint16_t smtc_modem_hal_flash_get_page_size( void ) {
+    //TBD 
     return 0;
 }
 
