@@ -53,7 +53,7 @@ cmake -DPLATFORM_BOARD="RPI_LINUX" -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Rele
 
 ## Gateway setup
 
-I used Chirpstack v4.6.0 on my Waveshare gateway.  The Waveshare hat was connected to a Pi 4-B.  I installed the stock openWRT images on an sdcard.  Chirp stack is well documented, start at the below link:
+I used Chirpstack v4.6.0 on my Waveshare gateway.  The Waveshare hat was connected to a Pi 4B.  I installed the stock openWRT images on an sdcard.  Chirp stack is well documented, start at the below link:
 
 https://www.chirpstack.io/docs/chirpstack-gateway-os/install/raspberry-pi.html
 
@@ -68,7 +68,3 @@ Create an appliction and add a device.
 ![image](docs/images/chirp3.png)
 
 ![image](docs/images/chirp4.png)
-
-
-
-

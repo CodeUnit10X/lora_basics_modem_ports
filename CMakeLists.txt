@@ -123,11 +123,11 @@ ExternalProject_Add(${PROJECT_NAME}_test
                     ""
                     )                                     
 
-ExternalProject_Add(${PROJECT_NAME}_otaa_uplink
+ExternalProject_Add(${PROJECT_NAME}_otaa_example
                     DEPENDS
                     pico_lora_basic_modem_lib
                     SOURCE_DIR
-                    ${CMAKE_CURRENT_LIST_DIR}/examples/otaa_uplink
+                    ${CMAKE_CURRENT_LIST_DIR}/examples/lorawan/otaa_example
                     LIST_SEPARATOR |
                     CMAKE_ARGS 
                         -DCMAKE_C_STANDARD=${CMAKE_C_STANDARD}

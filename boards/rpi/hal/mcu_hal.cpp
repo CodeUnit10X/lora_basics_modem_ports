@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <sys/mman.h>
+#include <poll.h>
 
 #include <csignal>
 #include <ctime>
@@ -11,6 +12,7 @@
 #include <iostream>
 #include <print>
 #include <filesystem>
+#include <thread>
 
 #include <linux/spi/spidev.h>
 #include <sys/ioctl.h>
@@ -19,8 +21,6 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <thread>
-
-#include <pthread.h>
 
 #include "sx126x_hal.h"
 
@@ -88,6 +88,7 @@ constexpr uint32_t CTX_STORE_AND_FWD_START  = FAUX_FLASH_SIZE_BYTES - (FAUX_FLAS
 constexpr uint32_t CTX_STORE_AND_FWD_NUM_SECTORS = 8;  
 
 struct linux_hal_state {
+    bool shutdown_;
     bool timer_started_;
     timer_t timer_id_;
     uint32_t timer_ms_;
@@ -101,7 +102,7 @@ struct linux_hal_state {
     int fd_;
     int fd_irq_;
     int fd_mmap_;
-    pthread_t irq_thread_;
+    std::thread irq_thread_;
     char* flash_addr_;
     struct gpiod_chip* gpio_chip_;
     struct gpiod_line* gpio_dio1_;
@@ -111,7 +112,7 @@ struct linux_hal_state {
     struct gpiod_line* gpio_cs_;      
 };
 
-static struct linux_hal_state state_ = {false, nullptr, 0, false, false, {}, {}, nullptr, nullptr, 0, -1, -1, -1, {}, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+static struct linux_hal_state state_ = {false, false, nullptr, 0, false, false, {}, {}, nullptr, nullptr, 0, -1, -1, -1, {}, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
 static void main_timer_callback(union sigval sv) {
     if(state_.user_data_.cb) {
@@ -120,24 +121,6 @@ static void main_timer_callback(union sigval sv) {
         } else {
             state_.timer_pending_ = true;
         }
-    }    
-}
-
-static void* irq_callback(void* arg) {
-    while(true) {
-        uint32_t info = 1;
-        ssize_t nb = write(state_.fd_irq_, &info, sizeof(info));
-        if (nb != (ssize_t)sizeof(info)) {
-            perror("write");
-        }
-
-        /* Wait for interrupt */
-        nb = read(state_.fd_irq_, &info, sizeof(info));
-        if (nb == (ssize_t)sizeof(info)) {
-            if(state_.radio_cb_) {
-                state_.radio_cb_(state_.radio_cb_ctx_);
-            }                
-        }           
     }    
 }
 
@@ -225,9 +208,29 @@ void mcu_hal_init() {
         std::print("failed to open uio device\n");
     }
     
-    if(pthread_create(&state_.irq_thread_, nullptr, irq_callback, nullptr) != 0) {
-        std::print("failed to create irq handler pthread\n");
-    }
+    state_.irq_thread_ = std::thread([](){
+        pollfd poll_item;
+        poll_item.fd = state_.fd_irq_;
+        poll_item.events = POLLIN|POLLPRI;
+
+        while(!state_.shutdown_) {
+            uint32_t info = 1;
+            ssize_t nb = write(state_.fd_irq_, &info, sizeof(info));
+            if (nb != (ssize_t)sizeof(info)) {
+                perror("write");
+            }
+
+            if(auto r = poll(&poll_item, (unsigned long)1, 1000); r > 0) {
+                 /* Wait for interrupt */
+                nb = read(state_.fd_irq_, &info, sizeof(info));
+                if (nb == (ssize_t)sizeof(info)) {
+                    if(state_.radio_cb_) {
+                        state_.radio_cb_(state_.radio_cb_ctx_);
+                    }                
+                }                
+            }       
+        }           
+    });
 
     //setup interval timer
     struct sigevent sev;
@@ -258,6 +261,42 @@ void mcu_hal_init() {
     } else {
         std::print("Failed to open or create flash.bin\n");
     }
+}
+
+
+void mcu_hal_exit() {
+
+    state_.shutdown_ = true;
+
+    state_.irq_thread_.join();
+
+    munmap(state_.flash_addr_, FAUX_FLASH_SIZE_BYTES);
+
+    close(state_.fd_mmap_);
+
+    if(state_.gpio_dio1_) {
+        gpiod_line_release(state_.gpio_dio1_);
+    }
+
+    if(state_.gpio_dio4_) {
+        gpiod_line_release(state_.gpio_dio4_);
+    }
+
+    if(state_.gpio_reset_) {
+        gpiod_line_release(state_.gpio_reset_);
+    }
+
+    if(state_.gpio_busy_) {
+        gpiod_line_release(state_.gpio_busy_);
+    }
+
+    if(state_.gpio_cs_) {
+        gpiod_line_release(state_.gpio_cs_);
+    }
+
+    if(state_.gpio_chip_) {
+        gpiod_chip_close(state_.gpio_chip_);
+    }
 
 
 }
@@ -278,9 +317,7 @@ void mcu_hal_spi_init() {
         result = ioctl(state_.fd_, SPI_IOC_RD_MODE32, &mode);
         if(result == -1) {
             std::print("failed to read spi mode\n");
-        } else {
-            std::print("mode set = 0x{}\n", mode);
-        }
+        } 
 
         if(mode != SPI_MODE_0) {
             std::print("printf(device does not support spi mode\n");
