@@ -13,6 +13,7 @@
 #include <print>
 #include <filesystem>
 #include <thread>
+#include <stdexcept>
 
 #include <linux/spi/spidev.h>
 #include <sys/ioctl.h>
@@ -29,6 +30,8 @@
 namespace fs = std::filesystem;
 using namespace std::chrono_literals;
 using namespace std::chrono;
+
+constexpr char TMP_LOCAL_PATH[]   = "/sys/class/hwmon/hwmon0/temp1_input";
 
 typedef enum
 {
@@ -102,6 +105,7 @@ struct linux_hal_state {
     int fd_;
     int fd_irq_;
     int fd_mmap_;
+    int fd_temp_;
     std::thread irq_thread_;
     char* flash_addr_;
     struct gpiod_chip* gpio_chip_;
@@ -112,7 +116,29 @@ struct linux_hal_state {
     struct gpiod_line* gpio_cs_;      
 };
 
-static struct linux_hal_state state_ = {false, false, nullptr, 0, false, false, {}, {}, nullptr, nullptr, 0, -1, -1, -1, {}, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+static struct linux_hal_state state_ = {false,
+                                        false, 
+                                        nullptr, 
+                                        0, 
+                                        false, 
+                                        false, 
+                                        {}, 
+                                        {}, 
+                                        nullptr, 
+                                        nullptr, 
+                                        0, 
+                                        -1, 
+                                        -1, 
+                                        -1, 
+                                        -1, 
+                                        {}, 
+                                        nullptr, 
+                                        nullptr, 
+                                        nullptr, 
+                                        nullptr, 
+                                        nullptr, 
+                                        nullptr, 
+                                        nullptr};
 
 static void main_timer_callback(union sigval sv) {
     if(state_.user_data_.cb) {
@@ -261,6 +287,14 @@ void mcu_hal_init() {
     } else {
         std::print("Failed to open or create flash.bin\n");
     }
+
+    if(std::filesystem::exists(TMP_LOCAL_PATH)) {
+        if(state_.fd_temp_ = open(TMP_LOCAL_PATH, O_RDONLY | O_NONBLOCK); state_.fd_temp_ == -1) {
+            std::println("failed to open temp device {}, cpu temp unavailable!", TMP_LOCAL_PATH);
+        }
+    }
+
+
 }
 
 
@@ -542,9 +576,22 @@ uint16_t mcu_hal_adc_read(unsigned int channel) {
     return 0;
 }
 
-int8_t mcu_hal_read_temp() {
+int8_t mcu_hal_read_temp() try {
+
+    if(state_.fd_temp_ == -1) {
+        return 0;
+    }
+    //read the temp value from hwmon for the pi
+    std::string value(16, '0');     
+    if(auto br = pread(state_.fd_temp_, &value[0], value.size(), 0); br != -1) {
+        return stof(value)/1000.0;
+    } else {
+        return 0;
+    }
+      
+}  catch(std::exception& ex) {
     return 0;
-}
+}  
 
 uint16_t mcu_hal_read_batt_voltage() {
     return 255;

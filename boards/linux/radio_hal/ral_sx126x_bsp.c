@@ -21,10 +21,10 @@ void ral_sx126x_bsp_get_tx_cfg( const void* context, const ral_sx126x_bsp_tx_cfg
 
 {
     //workaround 15.2
-    uint8_t reg_val = 0;
-    sx126x_read_register(context, 0x08D8, &reg_val, 1);
-    reg_val |= (0x0F<<1);
-    sx126x_write_register(context, 0x08D8, &reg_val, 1);
+    //uint8_t reg_val = 0;
+    //sx126x_read_register(context, 0x08D8, &reg_val, 1);
+    //reg_val |= (0x0F<<1);
+    //sx126x_write_register(context, 0x08D8, &reg_val, 1);
 
     int8_t power = input_params->system_output_pwr_in_dbm ;
     if(input_params->system_output_pwr_in_dbm > 22) {

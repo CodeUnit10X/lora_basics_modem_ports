@@ -41,13 +41,13 @@ The build system uses cmake on a Linux system.
 
 **set your region correctly for your country, in the top level CMakeLists.txt i.e. -DRADIO_REGION=US_915 **
 
-PLATFORM_BOARD [ PICO | PICO2 | RPI_LINUX ]
+PLATFORM_BOARD [ PICO | PICO2 | LINUX ]
 
 cmake -DPLATFORM_BOARD="PICO" -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..
 
 The linux userspace version was intended to be used with my buildroot images, to build standalone you'll need to specify a toolchain file
 
-cmake -DPLATFORM_BOARD="RPI_LINUX" -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path to your toolchainfile.cmake> ..
+cmake -DPLATFORM_BOARD="LINUX" -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path to your toolchainfile.cmake> ..
 
 # System Setup
 

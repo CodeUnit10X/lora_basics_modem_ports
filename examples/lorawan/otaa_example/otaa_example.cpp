@@ -1,3 +1,17 @@
+/*!
+ *   @file otaa_example.cpp
+ *   @brief Simple OTAA LoraWan example for Semtech's Lora Basics Modem API 
+ *   @author Jeffrey Coffman <jeff.coffman@protonmail.com>
+ *  
+ *   @date 11/13/2024
+ *
+ *   This uses my port of Semtech's Lora Basic Modem to do OTAA and 
+ *   send board temp in a periodic uplink message.
+ *  
+ *   This was tested on PICO/PICO2/Raspberry Pi Waveshare Hats, the gateway
+ *   was a Waveshare Raspberry Pi sx1303 Hat running ChirpStack v4.6.0
+ *  
+ */ 
 #include <print>
 #include <csignal>
 
@@ -12,6 +26,8 @@
 using namespace std;
 
 constexpr uint32_t UPLINK_PERIOD = 30;
+
+//! Update these accordingly for your chirpstack setup
 constexpr uint8_t joineui[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 constexpr uint8_t deveui[]  = { 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0xBE, 0xEF };
 constexpr uint8_t appkey[]  = { 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x77, 0x88 };
