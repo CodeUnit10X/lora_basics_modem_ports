@@ -236,7 +236,7 @@ void mcu_hal_init() {
 }
 
 void mcu_hal_exit() {
-    
+
 }
 
 uint32_t mcu_hal_get_time_in_ms() {
@@ -245,7 +245,12 @@ uint32_t mcu_hal_get_time_in_ms() {
 }
 
 void mcu_hal_sleep_ms(uint32_t ms) {
-    sleep_ms(ms);
+    busy_wait_us_32(ms);
+    //Switching to sleep_ms broke pico 1, while pico 2 worked as expected
+    //pico 1 would get stuck in timer routine.  I know the pico 2 has
+    //2 timer blocks... will have to investigate why this is.  But for now
+    //busy sleep
+    //sleep_ms(ms);
 }
 
 int mcu_hal_gpio_get(unsigned int gpio) {

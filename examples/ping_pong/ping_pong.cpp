@@ -38,10 +38,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include <print>
-
 #include <cstring>
+#include <print>
+#include <string>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -92,7 +91,7 @@ void  radio_irq_callback(void* obj) {
     if(ralf_t* modem = reinterpret_cast<ralf_t*>(obj); modem) {
         ral_irq_t radio_irq = 0;
         if( ral_get_and_clear_irq_status( &( modem->ral ), &radio_irq ) != RAL_STATUS_OK ) {
-            std::print(" ral_get_and_clear_irq_status() function failed \n" );
+            print(" ral_get_and_clear_irq_status() function failed \n" );
         }   
 
         if(radio_irq != 0) {
@@ -102,13 +101,13 @@ void  radio_irq_callback(void* obj) {
             }
 
             if((radio_irq & RAL_IRQ_RX_DONE) == RAL_IRQ_RX_DONE) {
-                print("RX_DONE\n");
+                print("RX DONE\n");
                 ral_sx126x_handle_rx_done(modem);
                 on_rx_done(modem);
             }
 
             if((radio_irq & RAL_IRQ_RX_TIMEOUT ) == RAL_IRQ_RX_TIMEOUT) {
-                print( "Rx timeout\n" );
+                print( "RX TIMEOUT\n" );
                 on_rx_timeout(modem);
             }
 
@@ -120,7 +119,7 @@ int main(int argc, char** argv) {
 	
     mcu_hal_init();
 
-    mcu_hal_sleep_ms(1000);
+    mcu_hal_sleep_ms(2000);
 
     ralf_t modem_radio_ = RALF_SX126X_INSTANTIATE(0);
 
@@ -131,7 +130,7 @@ int main(int argc, char** argv) {
     status = ral_init( &( modem_radio_.ral ) );
     if( status != RAL_STATUS_OK )
     {
-        std::print( " ral_init() function failed \n" );
+        print( " ral_init() function failed \n" );
         return false;
     }
 
@@ -153,11 +152,11 @@ int main(int argc, char** argv) {
     ral_sx126x_set_rx_tx_fallback_mode( &( modem_radio_.ral ), RAL_FALLBACK_STDBY_RC);
 
     if( ralf_setup_lora( &modem_radio_, &rx_lora_param ) != RAL_STATUS_OK ) {
-        std::print( " ralf_setup_lora() function failed \n" );
+        print( " ralf_setup_lora() function failed \n" );
     }
 
     if( ral_set_dio_irq_params( &( modem_radio_.ral ), RAL_IRQ_ALL ) != RAL_STATUS_OK ) {
-        std::print( " ral_set_dio_irq_params() function failed \n" );
+        print( " ral_set_dio_irq_params() function failed \n" );
     } 
 
     ral_sx126x_clear_irq_status( &( modem_radio_.ral ), RAL_IRQ_ALL);    
@@ -175,7 +174,7 @@ int main(int argc, char** argv) {
     }
 
    if(ral_sx126x_set_tx(&( modem_radio_.ral )) == RAL_STATUS_OK) {
-        printf("Set tx\n");
+        print("Set tx\n");
    }
 
     //gpio_init(PICO_DEFAULT_LED_PIN);
@@ -186,18 +185,18 @@ int main(int argc, char** argv) {
 
         //sx126x_chip_status_t rs;
         //sx126x_get_status( &( modem_radio_.ral ), &rs);
-        //printf("rs chipmode = %d[%d]\n", rs.chip_mode, rs.cmd_status);
+        //print("rs chipmode = %d[%d]\n", rs.chip_mode, rs.cmd_status);
 
         //sx126x_errors_mask_t de;
         //sx126x_get_device_errors(&( modem_radio_.ral ), &de);
-        //printf("device errors = 0x%X\n", de);
+        //print("device errors = 0x%X\n", de);
 
         if(led_on) {
             led_on = false;
-            gpio_put(PICO_DEFAULT_LED_PIN, 0);
+            //gpio_put(PICO_DEFAULT_LED_PIN, 0);
         } else {
             led_on = true;
-            gpio_put(PICO_DEFAULT_LED_PIN, 1);
+            //gpio_put(PICO_DEFAULT_LED_PIN, 1);
         }        
         mcu_hal_sleep_ms(2000);
     }
