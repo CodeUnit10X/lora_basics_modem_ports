@@ -93,9 +93,8 @@ https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry
 
 To build examples standalone (outside Buildroot):
 
-'''
-cmake -DPLATFORM_BOARD="LINUX" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path to the toolchain file used by buildroot> -DRADIO_REGION=US_915 ..
-'''
+cmake -DPLATFORM_BOARD="LINUX" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/path/to/toolchain -DRADIO_REGION=US_915 ..
+
 
 **note the Linux port is entirely userspace, and thus running on a general purpose OS.  While it seems to work fine on my test system keep in mind your mileage may vary depending on what else is running on your system, as LoRaWan RX timing is pretty precise.**
 
