@@ -79,6 +79,8 @@ void on_tx_done(ralf_t* context);
 void on_rx_done(ralf_t* context);
 void on_rx_timeout(ralf_t* context);
 
+
+//!IMPORTANT:  These are just example parameters, make sure your settings are in compliance, with your region
 static ralf_params_lora_t rx_lora_param = { {RAL_LORA_SF7, RAL_LORA_BW_125_KHZ, RAL_LORA_CR_4_5, 0},
                                             {8, RAL_LORA_PKT_EXPLICIT, PAYLOAD_LENGTH, false, false},
                                             RF_FREQ_IN_HZ,
@@ -182,20 +184,20 @@ int main(int argc, char** argv) {
     bool led_on = false;
     while(true) {
 
-        sx126x_chip_status_t rs;
-        sx126x_get_status( &( modem_radio_.ral ), &rs);
-        printf("rs chipmode = %d[%d]\n", rs.chip_mode, rs.cmd_status);
+        //sx126x_chip_status_t rs;
+        //sx126x_get_status( &( modem_radio_.ral ), &rs);
+        //printf("rs chipmode = %d[%d]\n", rs.chip_mode, rs.cmd_status);
 
-        sx126x_errors_mask_t de;
-        sx126x_get_device_errors(&( modem_radio_.ral ), &de);
-        printf("device errors = 0x%X\n", de);
+        //sx126x_errors_mask_t de;
+        //sx126x_get_device_errors(&( modem_radio_.ral ), &de);
+        //printf("device errors = 0x%X\n", de);
 
         if(led_on) {
             led_on = false;
-            //gpio_put(PICO_DEFAULT_LED_PIN, 0);
+            gpio_put(PICO_DEFAULT_LED_PIN, 0);
         } else {
             led_on = true;
-            //gpio_put(PICO_DEFAULT_LED_PIN, 1);
+            gpio_put(PICO_DEFAULT_LED_PIN, 1);
         }        
         mcu_hal_sleep_ms(2000);
     }
