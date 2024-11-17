@@ -78,7 +78,11 @@ can do the following:
 </ol>
 
 The initial build of buildroot can take a long time, but once its down you'll have a an sdcard.img in output/images folder of buildroot, that you use
-on a pi zero 2w with the Waveshare hat.  You'd need to update for your Region and Dev/app eui's etc.  
+on a pi zero 2w with the Waveshare hat.  The examples are located in /usr/bin.  You'd need to update for your Region and Dev/app eui's etc.  Generally
+I update the package .mk to point to a local clone of the repo and modify it there.  
+
+**Otherwise the examples are build with US915 and some hardcoded DEVUI and APPUI.**
+
 
 If you want to support another Pi, Take a look at   
 
@@ -89,10 +93,11 @@ https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry
 
 To build examples standalone (outside Buildroot):
 
+'''
 cmake -DPLATFORM_BOARD="LINUX" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path to the toolchain file used by buildroot> -DRADIO_REGION=US_915 ..
+'''
 
 **note the Linux port is entirely userspace, and thus running on a general purpose OS.  While it seems to work fine on my test system keep in mind your mileage may vary depending on what else is running on your system, as LoRaWan RX timing is pretty precise.**
-
 
 # System Setup
 
