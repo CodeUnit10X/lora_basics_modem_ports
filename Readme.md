@@ -1,9 +1,9 @@
 # Introduction
 
-I had several Waveshare (https://www.waveshare.com/product/iot-communication/long-range-wireless/nb-iot-lora.htm) LoRa Hats lying around.  The Software available for them
+I have several Waveshare (https://www.waveshare.com/product/iot-communication/long-range-wireless/nb-iot-lora.htm) LoRa Hats lying around.  The Software available for them
 at the time I wrote this was all based on older Semtech software libraries.
 
-Semtech has since shifted to:
+Semtech has since moved to:
 
 See:  https://github.com/Lora-net/SWL2001
 
@@ -12,7 +12,7 @@ This is a port for Pico and Raspberry Pi Waveshare Hats listed below, in the Har
 OTAA and Uplink/Status has been tested.
 
 
-There are a couple real basic examples, some based off Semtech's examples.
+There are a couple of basic examples, one OTAA and a ping pong for general radio RX/TX based directly off the Semtech Example.
 
 ## otaa_example
 
@@ -44,37 +44,54 @@ https://www.waveshare.com/wiki/SX1262_XXXM_LoRaWAN/GNSS_HAT
 
 # Building:
 
-The build system uses cmake on a Linux system.
+I build on Arch Linux but you should have no problems on most Linux Distros, you'll need at minimum cmake, and the build environment for your distro (build-essentials etc).
 
 **Currently only the sx1262 radio is supported.**
 
-**set your region correctly for your country, in the top level CMakeLists.txt i.e. -DRADIO_REGION=US_915 **
+**set your region correctly for your country, in the top level CMakeLists.txt i.e. -DRADIO_REGION=US_915**
 
+You configure the target board via the following:
 
 PLATFORM_BOARD [ PICO | PICO2 | LINUX ]
 
-cmake -DPLATFORM_BOARD="PICO" -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..
+cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..
 
+The LINUX Platform is a purely userspace implementation.  It relies on the UIO driver to be configured in your kernel. 
 
-The PICO/PICO2 Platforms will assume you have the pico-sdk installed in /usr/share/pico-sdk, and handles incorporated it into the build.
+CONFIG_UIO=y
+CONFIG_UIO_PDRV_GENIRQ=y
 
-The LINUX Platform is a purely userspace implementation.  It relies on the UIO driver being installed.  For a complete image to support this with the 
+For a complete image to support this with the 
 Waveshare Raspberry Pi GNSS_HAT see:
 
 https://github.com/CodeUnit10X/animal-farm
 
-The configuration for Raspberry Pi Zero 2w, includes all the required prereqs.  Take a look at   
+The configuration for Raspberry Pi Zero 2w, includes all the required prereqs.  To create everything in Buildroot for Pi running Linux you
+can do the following:
+
+<ol>
+	<li>git clone https://github.com/buildroot/buildroot</li>
+	<li>git clone https://github.com/CodeUnit10X/animal-farm</li>
+	<li>cd <path/to/buildroot> && make BR2_EXTERNAL=</path/to/animal-farm> raspberrypi_2w_custom_defconfig</li>
+	<li>make menuconfig External options -> pi application options -> [*] lorawan </li>
+	<li>make</li>
+</ol>
+
+The initial build of buildroot can take a long time, but once its down you'll have a an sdcard.img in output/images folder of buildroot, that you use
+on a pi zero 2w with the Waveshare hat.  You'd need to update for your Region and Dev/app eui's etc.  
+
+If you want to support another Pi, Take a look at   
 
 https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry_pi_zero_2w/cmdline.txt
 
 https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry_pi_zero_2w/config.txt
 
-If your using a different Pi.  At some point I'll add a package to buildroot for these LoRaWan examples.  But currently you can build the examples standalone:
+
+To build examples standalone (outside Buildroot):
 
 cmake -DPLATFORM_BOARD="LINUX" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=<path to the toolchain file used by buildroot> -DRADIO_REGION=US_915 ..
 
-*note the Linux port is entirely userspace, and running on a general purpose OS.  While it seems to work fine on my test system keep in mind your mileage may vary depending on what else is running on your system, as LoRaWan RX timing is pretty percise.
-
+**note the Linux port is entirely userspace, and thus running on a general purpose OS.  While it seems to work fine on my test system keep in mind your mileage may vary depending on what else is running on your system, as LoRaWan RX timing is pretty precise.**
 
 
 # System Setup
@@ -104,6 +121,4 @@ Create an appliction and add a device.
 ## TODO
 
 - Add GPS support for GNSS HAT
-- Clean up CMake build to deploy things to staging directory
-- Add package to buildroot repo
 - New Modem test application using the smtc_modem_test stuff

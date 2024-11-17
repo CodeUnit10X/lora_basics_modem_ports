@@ -57,6 +57,8 @@ int main(int argc, char** argv) {
 	smtc_modem_init(modem_event_cb);
 
 	//setup join parameters, for 1.0.x
+
+	//!Make sure this is correct for your region
 	if(smtc_modem_set_region(0, SMTC_MODEM_REGION_US_915) != SMTC_MODEM_RC_OK) {
 		println("failed to set region");
 	}

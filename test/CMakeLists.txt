@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.30.5 FATAL_ERROR)
 
 #pico sdk likes to be setup in a specific order
 if(${PLATFORM_BOARD} STREQUAL PICO2  OR ${PLATFORM_BOARD} STREQUAL PICO)
-    include(/usr/share/pico-sdk/external/pico_sdk_import.cmake)
+    include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 endif()
 
 project(test_modem_port LANGUAGES ASM C CXX)
@@ -17,6 +17,7 @@ if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
     pico_enable_stdio_usb(test_modem_port 1)
     pico_enable_stdio_uart(test_modem_port 0)
     pico_add_extra_outputs(test_modem_port)
+    set(ADD_LIBS pico_stdlib hardware_spi hardware_sync hardware_adc pico_rand)     
 elseif(${PLATFORM_BOARD} STREQUAL "LINUX")
     set(ignore "${PICO_BOARD}${PICO_PLATFORM}")
     set(ADD_LIBS "gpiod")

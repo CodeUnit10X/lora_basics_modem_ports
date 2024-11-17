@@ -4,11 +4,11 @@ cmake_minimum_required(VERSION 3.22.0)
 if(${PLATFORM_BOARD} STREQUAL PICO)
     set(PICO_PLATFORM rp2040)
     set(PICO_BOARD pico)
-    include(/usr/share/pico-sdk/external/pico_sdk_import.cmake)       
+    include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)       
 elseif(${PLATFORM_BOARD} STREQUAL PICO2)
     set(PICO_PLATFORM rp2350-arm-s)
     set(PICO_BOARD pico2)   
-    include(/usr/share/pico-sdk/external/pico_sdk_import.cmake)
+    include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 endif()
 
 project(pico_lora_basic_modem CXX C ASM)
@@ -42,11 +42,6 @@ if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
 
     list(TRANSFORM hal_includes PREPEND "${CMAKE_SOURCE_DIR}/boards/")
 
-    string(REPLACE ";" "|" hal_includes "${hal_includes}")
-
-    set(platform_libs pico_stdlib hardware_spi hardware_sync hardware_adc pico_rand)
-
-    message(STATUS "hal_sources ${hal_sources}")
 elseif(${PLATFORM_BOARD} STREQUAL LINUX)
     set(ignore "${PICO_BOARD}${PICO_PLATFORM}")
 
@@ -59,9 +54,7 @@ elseif(${PLATFORM_BOARD} STREQUAL LINUX)
     set(hal_includes ${CMAKE_SOURCE_DIR}/boards/common ${CMAKE_SOURCE_DIR}/boards/linux/hal)
 
 else()
-
     message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|LINUX]")
-
 endif()
 
 set(STAGED_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/stage)

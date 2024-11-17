@@ -235,6 +235,10 @@ void mcu_hal_init() {
     gpio_put(PICO_LORA_SX1262_PIN_RESET, 0);
 }
 
+void mcu_hal_exit() {
+    
+}
+
 uint32_t mcu_hal_get_time_in_ms() {
     absolute_time_t t = get_absolute_time();
     return to_ms_since_boot(t);	    
