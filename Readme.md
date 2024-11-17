@@ -63,15 +63,14 @@ You configure the target board via the following:
 
 PLATFORM_BOARD [ PICO | PICO2 | LINUX ]
 
-
-i.e. To build for PICO2
+## Build for PICO and PICO2
 
 <ol>
 	<li>mkdir build_pico2 && cd build_pico2</li>
 	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
 </ol>
 
-i.e. To build for LINUX
+## Build for LINUX
 
 The LINUX Platform is a purely userspace implementation.  **Note:  Lora Basics Modem kinda expects a flash device for storing LoRa context and other stuff, in this
 Linux example we dummy up flash with a file backed mmap.  So there is just a file flash.bin that gets created.  It will persist but you can nuke it if you want to 
