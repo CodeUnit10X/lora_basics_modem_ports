@@ -6,10 +6,9 @@ endif()
 
 project(ping_pong LANGUAGES ASM C CXX)
 
-#disable abi warning about gcc 9.1 changes for std::print
-add_compile_options(-Wno-psabi)
-
 add_executable(ping_pong ping_pong.cpp)
+
+add_dependencies(ping_pong lora_basics_modem_lib)
 
 if(${PLATFORM_BOARD} STREQUAL PICO2  OR ${PLATFORM_BOARD} STREQUAL PICO)
     pico_sdk_init()
@@ -25,5 +24,6 @@ endif()
 
 target_sources(ping_pong PUBLIC ${HAL_SRCS})
 target_include_directories(ping_pong PRIVATE ${HAL_INCLUDES} ${MODEM_LIB_INCLUDES})
-target_link_libraries(ping_pong ${ADD_LIBS} ${PLATFORM_LIBS} ${pico_lora_basic_modem_lib_DIR}/build/basic_modem.a)     
+target_link_libraries(ping_pong ${ADD_LIBS} ${PLATFORM_LIBS} ${CMAKE_BINARY_DIR}/stage/basic_modem.a)     
 
+install(TARGETS ping_pong DESTINATION bin)

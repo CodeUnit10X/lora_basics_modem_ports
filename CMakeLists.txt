@@ -13,11 +13,15 @@ endif()
 
 project(pico_lora_basic_modem CXX C ASM)
 
+include(ExternalProject)
+
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD 23)
 
 #set target radio and region
 set(RADIO_TARGET sx1262)
+
+add_compile_options(-Wno-psabi)
 
 #set the platform board
 if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
@@ -33,9 +37,6 @@ if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
 
     list(TRANSFORM hal_sources PREPEND "${CMAKE_SOURCE_DIR}/boards/pico/")
 
-    #work around for external_project limitations
-    string(REPLACE ";" "|" hal_sources "${hal_sources}")
-
     set(hal_includes common 
                      pico/hal)
 
@@ -44,9 +45,6 @@ if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
     string(REPLACE ";" "|" hal_includes "${hal_includes}")
 
     set(platform_libs pico_stdlib hardware_spi hardware_sync hardware_adc pico_rand)
-
-    #work around for external_project limitations
-    string(REPLACE ";" "|" platform_libs "${platform_libs}")
 
     message(STATUS "hal_sources ${hal_sources}")
 elseif(${PLATFORM_BOARD} STREQUAL LINUX)
@@ -58,29 +56,44 @@ elseif(${PLATFORM_BOARD} STREQUAL LINUX)
 
     list(TRANSFORM hal_sources PREPEND "${CMAKE_SOURCE_DIR}/boards/linux/")
 
-    #work around for external_project limitations
-    string(REPLACE ";" "|" hal_sources "${hal_sources}")
-
     set(hal_includes ${CMAKE_SOURCE_DIR}/boards/common ${CMAKE_SOURCE_DIR}/boards/linux/hal)
 
-    string(REPLACE ";" "|" hal_includes "${hal_includes}")
 else()
 
     message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|LINUX]")
 
 endif()
 
-#superbuild
 set(STAGED_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/stage)
+
+file(MAKE_DIRECTORY ${STAGED_INSTALL_PREFIX})
+
+
+include(FetchContent)
+
+FetchContent_Declare(
+  lora_basics_modem_lib
+  GIT_REPOSITORY https://github.com/Lora-net/SWL2001.git
+  GIT_TAG        v4.5.0
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/subprojects/Source
+)
+
+FetchContent_MakeAvailable(lora_basics_modem_lib)
+
+
+add_custom_target(lora_basics_modem_lib COMMAND cd ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib && 
+                                                make VERBOSE=no basic_modem_${RADIO_TARGET} MCU_FLAGS=${CMAKE_C_FLAGS} REGION=${RADIO_REGION} MODEM_TRACE=no MODEM_DEEP_TRACE=no CC=${CMAKE_C_COMPILER} &&
+                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/build/*.a ${STAGED_INSTALL_PREFIX} &&
+                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/smtc_modem_api/*.h ${STAGED_INSTALL_PREFIX})
+
 set_property(DIRECTORY PROPERTY EP_BASE ${CMAKE_BINARY_DIR}/subprojects)
 set_property(DIRECTORY PROPERTY STAGED_INSTALL_PREFIX ${STAGED_INSTALL_PREFIX})
 set_property(GLOBAL PROPERTY RADIO_TARGET ${RADIO_TARGET})
 set_property(GLOBAL PROPERTY RADIO_REGION ${RADIO_REGION})
 
-add_subdirectory(external/upstream)
-
-set( pico_lora_basic_modem_lib_DIR ${CMAKE_BINARY_DIR}/subprojects/Source/pico_lora_basic_modem_lib/lbm_lib
-CACHE PATH "Path to modem library" FORCE)
+set(pico_lora_basic_modem_lib_DIR ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib CACHE PATH "Path to modem library" FORCE)
+set(HAL_SRCS ${hal_sources} CACHE PATH "Path to modem library" FORCE)
+set(HAL_INCLUDES ${hal_includes} CACHE PATH "Path to modem library" FORCE)
 
 #common modem library includes and library paths
 set(modem_lib_includes ${pico_lora_basic_modem_lib_DIR}/smtc_modem_core/radio_drivers/sx126x_driver/src
@@ -89,82 +102,9 @@ set(modem_lib_includes ${pico_lora_basic_modem_lib_DIR}/smtc_modem_core/radio_dr
                        ${pico_lora_basic_modem_lib_DIR}/smtc_modem_hal
                        ${pico_lora_basic_modem_lib_DIR}/smtc_modem_api)
 
-string(REPLACE ";" "|" modem_lib_includes "${modem_lib_includes}")
+set(MODEM_LIB_INCLUDES ${modem_lib_includes} CACHE PATH "Path to modem library" FORCE)
 
-message(STATUS "modem_lib_includes = ${modem_lib_includes}")
 
-message(STATUS "CMAKE_C_COMPILER = ${CMAKE_C_COMPILER}")
-
-include(ExternalProject)
-
-ExternalProject_Add(${PROJECT_NAME}_test
-                    DEPENDS
-                    pico_lora_basic_modem_lib
-                    SOURCE_DIR
-                    ${CMAKE_CURRENT_LIST_DIR}/test
-                    LIST_SEPARATOR |
-                    CMAKE_ARGS 
-                     -DCMAKE_C_STANDARD=${CMAKE_C_STANDARD}
-                     -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-                     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-                     -DPLATFORM_BOARD=${PLATFORM_BOARD}
-                     -DPICO_BOARD=${PICO_BOARD}
-                     -DPICO_PLATFORM=${PICO_PLATFORM}
-                     -DHAL_SRCS=${hal_sources}
-                     -DHAL_INCLUDES=${hal_includes}
-                     -DPLATFORM_LIBS=${platform_libs}
-                     -DMODEM_LIB_INCLUDES=${modem_lib_includes}
-                     -Dpico_lora_basic_modem_lib_DIR=${pico_lora_basic_modem_lib_DIR}
-                    BUILD_ALWAYS
-                     1
-                    INSTALL_COMMAND 
-                    ""
-                    )                                     
-
-ExternalProject_Add(${PROJECT_NAME}_otaa_example
-                    DEPENDS
-                    pico_lora_basic_modem_lib
-                    SOURCE_DIR
-                    ${CMAKE_CURRENT_LIST_DIR}/examples/lorawan/otaa_example
-                    LIST_SEPARATOR |
-                    CMAKE_ARGS 
-                        -DCMAKE_C_STANDARD=${CMAKE_C_STANDARD}
-                        -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-                        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-                        -DPLATFORM_BOARD=${PLATFORM_BOARD}
-                        -DPICO_BOARD=${PICO_BOARD}
-                        -DPICO_PLATFORM=${PICO_PLATFORM}
-                        -DHAL_SRCS=${hal_sources}
-                        -DHAL_INCLUDES=${hal_includes}
-                        -DPLATFORM_LIBS=${platform_libs}
-                        -DMODEM_LIB_INCLUDES=${modem_lib_includes}                                                
-                        -Dpico_lora_basic_modem_lib_DIR=${pico_lora_basic_modem_lib_DIR}
-                    BUILD_ALWAYS
-                        1
-                    INSTALL_COMMAND 
-                    ""
-                    )
-
-ExternalProject_Add(${PROJECT_NAME}_ping_pong
-                    DEPENDS
-                    pico_lora_basic_modem_lib
-                    SOURCE_DIR
-                    ${CMAKE_CURRENT_LIST_DIR}/examples/ping_pong
-                    LIST_SEPARATOR |    
-                    CMAKE_ARGS 
-                        -DCMAKE_C_STANDARD=${CMAKE_C_STANDARD}
-                        -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-                        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-                        -DPLATFORM_BOARD=${PLATFORM_BOARD}
-                        -DPICO_BOARD=${PICO_BOARD}
-                        -DPICO_PLATFORM=${PICO_PLATFORM}
-                        -DHAL_SRCS=${hal_sources}
-                        -DHAL_INCLUDES=${hal_includes}
-                        -DPLATFORM_LIBS=${platform_libs}
-                        -DMODEM_LIB_INCLUDES=${modem_lib_includes}     
-                        -Dpico_lora_basic_modem_lib_DIR=${pico_lora_basic_modem_lib_DIR}
-                    BUILD_ALWAYS
-                        1
-                    INSTALL_COMMAND 
-                    ""
-                    )    
+add_subdirectory(examples/lorawan/otaa_example)
+add_subdirectory(examples/ping_pong)
+add_subdirectory(test)

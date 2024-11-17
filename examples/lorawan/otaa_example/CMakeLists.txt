@@ -6,9 +6,9 @@ endif()
 
 project(otaa_uplink LANGUAGES ASM C CXX)
 
-add_compile_options(-Wno-psabi)
-
 add_executable(otaa_example otaa_example.cpp)
+
+add_dependencies(otaa_example lora_basics_modem_lib)
 
 if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
     pico_sdk_init()
@@ -24,5 +24,6 @@ endif()
 
 target_sources(otaa_example PUBLIC ${HAL_SRCS})
 target_include_directories(otaa_example PRIVATE  ${HAL_INCLUDES} ${MODEM_LIB_INCLUDES})
-target_link_libraries(otaa_example ${ADD_LIBS} ${PLATFORM_LIBS} ${pico_lora_basic_modem_lib_DIR}/build/basic_modem.a)     
+target_link_libraries(otaa_example ${ADD_LIBS} ${PLATFORM_LIBS} ${CMAKE_BINARY_DIR}/stage/basic_modem.a)     
 
+install(TARGETS otaa_example DESTINATION bin)

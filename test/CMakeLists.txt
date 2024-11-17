@@ -7,9 +7,10 @@ endif()
 
 project(test_modem_port LANGUAGES ASM C CXX)
 
-add_compile_options(-Wno-psabi)
-
 add_executable(test_modem_port test_modem.cpp tests.cpp)
+
+add_dependencies(test_modem_port lora_basics_modem_lib)
+
 
 if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
     pico_sdk_init()
@@ -25,6 +26,5 @@ endif()
 
 target_sources(test_modem_port PUBLIC ${HAL_SRCS})
 target_include_directories(test_modem_port PRIVATE  ${HAL_INCLUDES} ${MODEM_LIB_INCLUDES})
-target_link_libraries(test_modem_port ${ADD_LIBS} ${PLATFORM_LIBS} ${pico_lora_basic_modem_lib_DIR}/build/basic_modem.a)     
-
+target_link_libraries(test_modem_port ${ADD_LIBS} ${PLATFORM_LIBS} ${CMAKE_BINARY_DIR}/stage/basic_modem.a)     
 
