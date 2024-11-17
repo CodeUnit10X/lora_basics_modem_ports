@@ -134,14 +134,21 @@ https://www.chirpstack.io/docs/chirpstack-gateway-os/install/raspberry-pi.html
 
 Create a device profile.
 
+Its important here to make sure your MAC Version and Regional parameters match what LoRa Basics Modem supports.  LoRaWAN v1.0.4 and RP002 v1.0.3.  Refer to Semtech's documentation on this but currently thats it.
+
 ![image](docs/images/chirp1.png)
 
 Create an appliction and add a device.
 
+As long as your on a small isolated network you can use whatever for Device EUI just make sure it matches what you have in the otaa_example.
+
 ![image](docs/images/chirp2.png)
+
+Same with Application Key
 
 ![image](docs/images/chirp3.png)
 
+Once everything is setup you should start to see frame and events for your application.  In this case a successful Join Request/Accept then uplinks.
 ![image](docs/images/chirp4.png)
 
 
