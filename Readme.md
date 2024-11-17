@@ -73,7 +73,9 @@ i.e. To build for PICO2
 
 i.e. To build for LINUX
 
-The LINUX Platform is a purely userspace implementation.  It relies on the UIO driver to be configured in your kernel. 
+The LINUX Platform is a purely userspace implementation.  **Note:  Lora Basics Modem kinda expects a flash device for storing LoRa context and other stuff, in this
+Linux example we dummy up flash with a file backed mmap.  So there is just a file flash.bin that gets created.  It will persist but you can nuke it if you want to 
+clear things out.**
 
 <ol>
 	<li>mkdir build_linux && cd build_linux</li>
