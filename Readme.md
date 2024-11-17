@@ -67,7 +67,7 @@ PLATFORM_BOARD [ PICO | PICO2 | LINUX ]
 
 <ol>
 	<li>mkdir build_pico2 && cd build_pico2</li>
-	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
+	<li>cmake -DPLATFORM_BOARD="PICO2" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
 </ol>
 
 ## Build for LINUX
