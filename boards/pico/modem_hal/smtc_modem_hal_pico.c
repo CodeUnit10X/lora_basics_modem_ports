@@ -145,12 +145,13 @@ uint32_t smtc_modem_hal_get_radio_tcxo_startup_delay_ms( void ) {
 }
 
 /*
-   This is connected to DIO2 on the sharewave board, which
-   goes to an rf switch.  Do we need to use SetDio2AsRfSwitchCtrl
-   somewhere?  
+    The Waveshare LORA-2040 has an antenna swtich
 */
 void smtc_modem_hal_set_ant_switch( bool is_tx_on ) {
-    return;
+    printf("switching antenna to %d\n", is_tx_on);
+    if(PICO_LORA_SX1262_PIN_ANT_SW != PICO_LORA_SX1262_PIN_UNUSED) {
+        mcu_hal_gpio_set(PICO_LORA_SX1262_PIN_ANT_SW, is_tx_on);
+    }
 }
 
 uint8_t smtc_modem_hal_get_battery_level( void ) {

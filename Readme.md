@@ -63,12 +63,12 @@ You configure the target board via the following:
 
 PLATFORM_BOARD [ PICO | PICO2 | LINUX ]
 
+
 ## Build for PICO and PICO2
 
 <ol>
 	<li>mkdir build_pico2 && cd build_pico2</li>
-	<li>cmake -DPLATFORM_BOARD="PICO2" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>
-	<li>make -j 24</li>
+	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
 </ol>
 
 ## Build for LINUX
@@ -79,8 +79,7 @@ clear things out.**
 
 <ol>
 	<li>mkdir build_linux && cd build_linux</li>
-	<li>cmake -DPLATFORM_BOARD="LINUX" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>
-	<li>make -j 24</li>
+	<li>cmake -DPLATFORM_BOARD="LINUX" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
 </ol>
 
 For a complete Buildroot configuration to support this with the Waveshare Raspberry Pi GNSS_HAT on a Pi Zero 2W see:

@@ -216,19 +216,31 @@ void mcu_hal_init() {
     gpio_set_irq_enabled_with_callback(PICO_LORA_SX1262_PIN_DIO1, GPIO_IRQ_EDGE_RISE, true, &dio_gpio_callback);
 
 
+    if(PICO_LORA_SX1262_PIN_ANT_SW != PICO_LORA_SX1262_PIN_UNUSED) {
+        gpio_init(PICO_LORA_SX1262_PIN_ANT_SW);
+        gpio_set_dir(PICO_LORA_SX1262_PIN_ANT_SW, GPIO_OUT);
+        gpio_disable_pulls(PICO_LORA_SX1262_PIN_ANT_SW);
+        gpio_put(PICO_LORA_SX1262_PIN_ANT_SW, 0);    
+    }
+
     //get an unused hardware alarm for our timers
     state_.pool_ = alarm_pool_create(2, 16);
     state_.alarm_num_ = alarm_pool_hardware_alarm_num(state_.pool_);
 
-    mcu_hal_spi_init();     
+    mcu_hal_spi_init();
+
+
+    adc_init();
 
     //ADC for battery voltage
-    adc_init();
-    adc_gpio_init(PICO_LORA_SX1262_PIN_ADC);
+    if(PICO_LORA_SX1262_PIN_ADC != PICO_LORA_SX1262_PIN_UNUSED) {
+        adc_gpio_init(PICO_LORA_SX1262_PIN_ADC);       
+    }
 
     adc_set_temp_sensor_enabled(true);
 
     //reset the radio
+
     gpio_init(PICO_LORA_SX1262_PIN_RESET);
     gpio_set_dir(PICO_LORA_SX1262_PIN_RESET, GPIO_OUT);
     gpio_disable_pulls(PICO_LORA_SX1262_PIN_RESET);
@@ -245,7 +257,7 @@ uint32_t mcu_hal_get_time_in_ms() {
 }
 
 void mcu_hal_sleep_ms(uint32_t ms) {
-    busy_wait_us_32(ms);
+    busy_wait_ms(ms);
     //Switching to sleep_ms broke pico 1, while pico 2 worked as expected
     //pico 1 would get stuck in timer routine.  I know the pico 2 has
     //2 timer blocks... will have to investigate why this is.  But for now

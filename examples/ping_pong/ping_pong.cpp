@@ -121,6 +121,8 @@ int main(int argc, char** argv) {
 
     mcu_hal_sleep_ms(2000);
 
+    print("mcu_hal_init complete!\n");
+
     ralf_t modem_radio_ = RALF_SX126X_INSTANTIATE(0);
 
     ral_reset( &( modem_radio_.ral ) );
@@ -169,6 +171,9 @@ int main(int argc, char** argv) {
         buffer_tx[i] = i;
     }
 
+
+    smtc_modem_hal_set_ant_switch(true);
+
     if(ral_sx126x_set_pkt_payload( &( modem_radio_.ral ), buffer_tx, PAYLOAD_LENGTH ) == RAL_STATUS_OK) {
         print("Set pkt payload!!\n");
     }
@@ -179,6 +184,13 @@ int main(int argc, char** argv) {
 
     //gpio_init(PICO_DEFAULT_LED_PIN);
     //gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
+
+
+    if(RAL_STATUS_OK != ral_sx126x_set_rx(&( modem_radio_.ral ), ral_sx126x_get_lora_time_on_air_in_ms( &rx_lora_param.pkt_params, &rx_lora_param.mod_params ) + RX_TIMEOUT_VALUE + rand( ) % 500)) {
+        print("failed to set ral_sx126x_set_rx\n");
+    }
+
+    smtc_modem_hal_set_ant_switch(false);
 
     bool led_on = false;
     while(true) {
@@ -198,6 +210,7 @@ int main(int argc, char** argv) {
             led_on = true;
             //gpio_put(PICO_DEFAULT_LED_PIN, 1);
         }        
+        print("main loop....\n");
         mcu_hal_sleep_ms(2000);
     }
 
@@ -214,6 +227,8 @@ void on_tx_done( ralf_t* context )
     if(RAL_STATUS_OK != ral_sx126x_set_rx(context, ral_sx126x_get_lora_time_on_air_in_ms( &rx_lora_param.pkt_params, &rx_lora_param.mod_params ) + RX_TIMEOUT_VALUE + rand( ) % 500)) {
         print("failed to set ral_sx126x_set_rx\n");
     }
+
+    smtc_modem_hal_set_ant_switch(false);
 }
 
 void on_rx_done(ralf_t* context)
@@ -270,6 +285,9 @@ void on_rx_done(ralf_t* context)
     mcu_hal_sleep_ms(DELAY_PING_PONG_PACE_MS + DELAY_BEFORE_TX_MS);
 
     buffer_tx[ITERATION_INDEX] = ( uint8_t ) ( iteration );
+
+
+    smtc_modem_hal_set_ant_switch(true);
 
     ral_sx126x_set_pkt_payload(context, buffer_tx, PAYLOAD_LENGTH );
     ral_sx126x_set_tx(context);
