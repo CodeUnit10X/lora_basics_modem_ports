@@ -185,13 +185,6 @@ int main(int argc, char** argv) {
     //gpio_init(PICO_DEFAULT_LED_PIN);
     //gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
 
-
-    if(RAL_STATUS_OK != ral_sx126x_set_rx(&( modem_radio_.ral ), ral_sx126x_get_lora_time_on_air_in_ms( &rx_lora_param.pkt_params, &rx_lora_param.mod_params ) + RX_TIMEOUT_VALUE + rand( ) % 500)) {
-        print("failed to set ral_sx126x_set_rx\n");
-    }
-
-    smtc_modem_hal_set_ant_switch(false);
-
     bool led_on = false;
     while(true) {
 

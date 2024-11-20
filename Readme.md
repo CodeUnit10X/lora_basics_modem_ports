@@ -39,9 +39,11 @@ The following hardware was used for testing and development
 
 https://www.waveshare.com/wiki/SX1302_LoRaWAN_Gateway_HAT
 
-## Waveshare Lora Node for Raspberry Pi Pico
+## Waveshare Lora Node for Raspberry Pi Pico (Pico HAT for either pico/pico2)
 
 https://www.waveshare.com/wiki/Pico-LoRa-SX1262
+
+## Waveshare RP2040-LoRa
 
 https://www.waveshare.com/wiki/RP2040-LoRa
 
@@ -61,14 +63,15 @@ I build on Arch Linux but you should have no problems on most Linux Distros, you
 
 You configure the target board via the following:
 
-PLATFORM_BOARD [ PICO | PICO2 | LINUX ]
+PLATFORM_BOARD [ PICO | PICO2 | RP2040_LORA | LINUX ]
 
 
-## Build for PICO and PICO2
+## Build for PICO/PICO2 and RP2040_LORA
 
 <ol>
 	<li>mkdir build_pico2 && cd build_pico2</li>
-	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
+	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>
+	<li>make -j 24</li>
 </ol>
 
 ## Build for LINUX
@@ -80,6 +83,7 @@ clear things out.**
 <ol>
 	<li>mkdir build_linux && cd build_linux</li>
 	<li>cmake -DPLATFORM_BOARD="LINUX" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
+	<li>make -j 24</li>	
 </ol>
 
 For a complete Buildroot configuration to support this with the Waveshare Raspberry Pi GNSS_HAT on a Pi Zero 2W see:

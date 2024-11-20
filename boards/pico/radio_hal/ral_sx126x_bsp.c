@@ -52,7 +52,11 @@ void ral_sx126x_bsp_get_reg_mode( const void* context, sx126x_reg_mod_t* reg_mod
 
 void ral_sx126x_bsp_get_rf_switch_cfg( const void* context, bool* dio2_is_set_as_rf_switch )
 {
+#if defined(RP2040_LORA)    
+    *dio2_is_set_as_rf_switch = false;
+#else
     *dio2_is_set_as_rf_switch = true;
+#endif
 }
 
 /*
@@ -90,10 +94,15 @@ void ral_sx126x_bsp_get_tx_cfg( const void* context, const ral_sx126x_bsp_tx_cfg
 void ral_sx126x_bsp_get_xosc_cfg( const void* context, ral_xosc_cfg_t* xosc_cfg,
                                   sx126x_tcxo_ctrl_voltages_t* supply_voltage, uint32_t* startup_time_in_tick )
 {
-    // TCXO present on sharewave pico board, controlled via dio3
-    *xosc_cfg = RAL_XOSC_CFG_TCXO_RADIO_CTRL;
+#if defined(RP2040_LORA)    
+    // XTAL of the RP2040_LORA
+    *xosc_cfg = RAL_XOSC_CFG_XTAL; 
+#else
+    // TCXO present on sharewave pico hat, controlled via dio3
+    *xosc_cfg = RAL_XOSC_CFG_TCXO_RADIO_CTRL; 
     *supply_voltage = SX126X_TCXO_CTRL_1_7V;
     *startup_time_in_tick = 5 << 6;
+#endif
 }
 
 void ral_sx126x_bsp_get_trim_cap( const void* context, uint8_t* trimming_cap_xta, uint8_t* trimming_cap_xtb )

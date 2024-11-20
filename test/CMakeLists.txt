@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5 FATAL_ERROR)
 
 #pico sdk likes to be setup in a specific order
-if(${PLATFORM_BOARD} STREQUAL PICO2  OR ${PLATFORM_BOARD} STREQUAL PICO)
+if(${PLATFORM_BOARD} STREQUAL PICO2  OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLATFORM_BOARD} STREQUAL RP2040_LORA)
     include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 endif()
 
@@ -12,7 +12,7 @@ add_executable(test_modem_port test_modem.cpp tests.cpp)
 add_dependencies(test_modem_port lora_basics_modem_lib)
 
 
-if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
+if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLATFORM_BOARD} STREQUAL RP2040_LORA)
     pico_sdk_init()
     pico_enable_stdio_usb(test_modem_port 1)
     pico_enable_stdio_uart(test_modem_port 0)
@@ -22,7 +22,7 @@ elseif(${PLATFORM_BOARD} STREQUAL "LINUX")
     set(ignore "${PICO_BOARD}${PICO_PLATFORM}")
     set(ADD_LIBS "gpiod")
 else()
-    message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|LINUX]")
+    message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|RP2040_LORA|LINUX]")
 endif()
 
 target_sources(test_modem_port PUBLIC ${HAL_SRCS})

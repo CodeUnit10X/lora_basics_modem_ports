@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22.0)
 
 #handle pico sdk, its picky about order in which things happen
-if(${PLATFORM_BOARD} STREQUAL PICO)
+if(${PLATFORM_BOARD} STREQUAL PICO OR ${PLATFORM_BOARD} STREQUAL RP2040_LORA)
     set(PICO_PLATFORM rp2040)
     set(PICO_BOARD pico)
     include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)       
@@ -24,7 +24,14 @@ set(RADIO_TARGET sx1262)
 add_compile_options(-Wno-psabi)
 
 #set the platform board
-if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO)
+if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLATFORM_BOARD} STREQUAL RP2040_LORA)
+
+    if(${PLATFORM_BOARD} STREQUAL RP2040_LORA)
+       add_compile_definitions(RP2040_LORA)
+    else()
+       add_compile_definitions(PICO_LORA)
+    endif()
+
     pico_sdk_init()
     set_property(GLOBAL PROPERTY MCU_FLAGS_PICO ${CMAKE_C_FLAGS})
     set_property(GLOBAL PROPERTY PICO_PLATFORM ${PICO_PLATFORM})
@@ -54,7 +61,7 @@ elseif(${PLATFORM_BOARD} STREQUAL LINUX)
     set(hal_includes ${CMAKE_SOURCE_DIR}/boards/common ${CMAKE_SOURCE_DIR}/boards/linux/hal)
 
 else()
-    message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|LINUX]")
+    message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|RP2040_LORA|LINUX]")
 endif()
 
 set(STAGED_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/stage)

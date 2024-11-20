@@ -148,10 +148,9 @@ uint32_t smtc_modem_hal_get_radio_tcxo_startup_delay_ms( void ) {
     The Waveshare LORA-2040 has an antenna swtich
 */
 void smtc_modem_hal_set_ant_switch( bool is_tx_on ) {
-    printf("switching antenna to %d\n", is_tx_on);
-    if(PICO_LORA_SX1262_PIN_ANT_SW != PICO_LORA_SX1262_PIN_UNUSED) {
-        mcu_hal_gpio_set(PICO_LORA_SX1262_PIN_ANT_SW, is_tx_on);
-    }
+#if defined(RP2040_LORA)
+    mcu_hal_gpio_set(PICO_LORA_SX1262_PIN_ANT_SW, !is_tx_on);
+#endif
 }
 
 uint8_t smtc_modem_hal_get_battery_level( void ) {

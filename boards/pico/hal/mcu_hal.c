@@ -216,12 +216,12 @@ void mcu_hal_init() {
     gpio_set_irq_enabled_with_callback(PICO_LORA_SX1262_PIN_DIO1, GPIO_IRQ_EDGE_RISE, true, &dio_gpio_callback);
 
 
-    if(PICO_LORA_SX1262_PIN_ANT_SW != PICO_LORA_SX1262_PIN_UNUSED) {
+#if defined(RP2040_LORA)
         gpio_init(PICO_LORA_SX1262_PIN_ANT_SW);
         gpio_set_dir(PICO_LORA_SX1262_PIN_ANT_SW, GPIO_OUT);
         gpio_disable_pulls(PICO_LORA_SX1262_PIN_ANT_SW);
         gpio_put(PICO_LORA_SX1262_PIN_ANT_SW, 0);    
-    }
+#endif
 
     //get an unused hardware alarm for our timers
     state_.pool_ = alarm_pool_create(2, 16);
