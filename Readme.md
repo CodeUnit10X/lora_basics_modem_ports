@@ -68,6 +68,8 @@ PLATFORM_BOARD [ PICO | PICO2 | RP2040_LORA | LINUX ]
 
 ## Build for PICO/PICO2 and RP2040_LORA
 
+I you have one of the PICO/PICO2 Hats or the newer RP2040_LORA you just should need to install the PICO SDK V2.0 and the following:
+
 <ol>
 	<li>mkdir build_pico2 && cd build_pico2</li>
 	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>
@@ -76,13 +78,22 @@ PLATFORM_BOARD [ PICO | PICO2 | RP2040_LORA | LINUX ]
 
 ## Build for LINUX
 
-The LINUX Platform is a purely userspace implementation.  **Note:  Lora Basics Modem kinda expects a flash device for storing LoRa context and other stuff, in this
+If you have the GNSS LORA HAT, and RPI (Zero 2W, 3, 4B, etc)  you can build for your Linux Environment.  You can build it standalone or in the context of buildroot.  If you have a RPI Zero 2W I have 
+a buildroot configuration already setup (see below).  The LINUX Platform is a purely userspace implementation.  
+
+**Note:  Lora Basics Modem kinda expects a flash device for storing LoRa context and other stuff, in this
 Linux example we dummy up flash with a file backed mmap.  So there is just a file flash.bin that gets created.  It will persist but you can nuke it if you want to 
 clear things out.**
 
+### Basic Standalone build
+
+Pre-reqs:
+- cmake
+- gcc 14
+
 <ol>
 	<li>mkdir build_linux && cd build_linux</li>
-	<li>cmake -DPLATFORM_BOARD="LINUX" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
+	<li>cmake -DPLATFORM_BOARD=LINUX -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
 	<li>make -j 24</li>	
 </ol>
 
