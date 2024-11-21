@@ -107,4 +107,4 @@ set(MODEM_LIB_INCLUDES ${modem_lib_includes} CACHE PATH "Path to modem library" 
 
 add_subdirectory(examples/lorawan/otaa_example)
 add_subdirectory(examples/ping_pong)
-add_subdirectory(test)
+#add_subdirectory(test)

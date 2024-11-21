@@ -141,7 +141,11 @@ void smtc_modem_hal_stop_radio_tcxo( void ) {
   Pico Lora Hat versions have TCXO
 */
 uint32_t smtc_modem_hal_get_radio_tcxo_startup_delay_ms( void ) {
+#if defined(RP2040_LORA)
+    return 0;
+#else
     return 5;
+#endif    
 }
 
 /*

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20.0 FATAL_ERROR)
 
 if(${PLATFORM_BOARD} STREQUAL PICO2  OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLATFORM_BOARD} STREQUAL RP2040_LORA)
     include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
@@ -16,7 +16,7 @@ if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLAT
     pico_enable_stdio_uart(otaa_example 0)
     pico_add_extra_outputs(otaa_example)
     set(ADD_LIBS pico_stdlib hardware_spi hardware_sync hardware_adc pico_rand) 
-elseif(${PLATFORM_BOARD} STREQUAL "LINUX")
+elseif(${PLATFORM_BOARD} STREQUAL LINUX)
     set(ignore "${PICO_BOARD}${PICO_PLATFORM}")
     set(ADD_LIBS gpiod)        
 else()

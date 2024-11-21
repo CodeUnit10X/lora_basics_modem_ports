@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20.0 FATAL_ERROR)
 
 if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO  OR ${PLATFORM_BOARD} STREQUAL RP2040_LORA)
     include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
