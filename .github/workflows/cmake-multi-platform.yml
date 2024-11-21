@@ -23,13 +23,10 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
@@ -70,6 +67,8 @@ jobs:
         cmake -Bbuild -GNinja ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_TOOLCHAIN_FILE="cmake/arm-gcc-cortex-m4.cmake"
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DPLATFORM_BOARD=LINUX 
+        -DRADIO_REGION=US_915
         -S ${{ github.workspace }}
 
     - name: Build
