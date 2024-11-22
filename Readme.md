@@ -87,13 +87,17 @@ clear things out.**
 
 ### Basic Standalone build
 
+**Note:   I've only crosscompiled, so didnt add support for building directly on a rpi.**
+
 Pre-reqs:
 - cmake
 - gcc 14
+- libgpiod-dev 1.6.x
+- Kernel configured with UIO and uio_pdrv_genirq
 
 <ol>
 	<li>mkdir build_linux && cd build_linux</li>
-	<li>cmake -DPLATFORM_BOARD=LINUX -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>	
+	<li>cmake -DPLATFORM_BOARD=LINUX -DRADIO_REGION=US_915 -DCMAKE_TOOLCHAIN_FILE=path/to/your/toolchain.cmake -DCMAKE_BUILD_TYPE=Release ..</li>	
 	<li>make -j 24</li>	
 </ol>
 
