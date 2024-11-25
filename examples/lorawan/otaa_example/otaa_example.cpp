@@ -20,8 +20,6 @@
 #include "smtc_modem_utilities.h"
 #include "smtc_modem_hal.h"
 #include "smtc_modem_relay_api.h"
-#include "hardware/i2c.h"
-
 
 using namespace std;
 
