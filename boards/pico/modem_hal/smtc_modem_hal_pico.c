@@ -158,7 +158,7 @@ void smtc_modem_hal_set_ant_switch( bool is_tx_on ) {
 }
 
 uint8_t smtc_modem_hal_get_battery_level( void ) {
-    return mcu_hal_read_batt_voltage();
+    return mcu_hal_read_battery_level();
 }
 
 int8_t smtc_modem_hal_get_board_delay_ms( void ) {
@@ -202,7 +202,7 @@ int8_t smtc_modem_hal_get_temperature( void ) {
 }
 
 uint16_t smtc_modem_hal_get_voltage_mv( void ) {
-    return mcu_hal_read_batt_voltage();
+    return mcu_hal_read_batt_voltage()*1000;
 }
 
 void smtc_modem_hal_crashlog_store( const uint8_t* crash_string, uint8_t crash_string_length ) {

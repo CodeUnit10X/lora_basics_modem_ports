@@ -10,8 +10,10 @@
 #include "hardware/flash.h"
 #include "hardware/sync.h"
 #include "hardware/spi.h"
+#include "hardware/i2c.h"
 #include "hardware/adc.h"
 #include "pico/rand.h"
+
 
 constexpr uint32_t CTX_MODEM_START          = PICO_FLASH_SIZE_BYTES - (FLASH_SECTOR_SIZE);
 constexpr uint32_t CTX_KEY_MODEM_START      = PICO_FLASH_SIZE_BYTES - (FLASH_SECTOR_SIZE*2);
@@ -245,6 +247,12 @@ void mcu_hal_init() {
     gpio_set_dir(PICO_LORA_SX1262_PIN_RESET, GPIO_OUT);
     gpio_disable_pulls(PICO_LORA_SX1262_PIN_RESET);
     gpio_put(PICO_LORA_SX1262_PIN_RESET, 0);
+
+    i2c_init(i2c_default, 100*1000);
+    gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
+    gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
 }
 
 void mcu_hal_exit() {
@@ -351,11 +359,14 @@ int8_t mcu_hal_read_temp() {
     return (int8_t)temp_celcius;
 }
 
-uint16_t mcu_hal_read_batt_voltage() {
+uint8_t mcu_hal_read_battery_level() {
+    auto mv = mcu_hal_read_batt_voltage();
+    return (floorf((LIPO_1S_COE_1 * mv) - LIPO_1S_COE_2) * 254);
+}
+
+float mcu_hal_read_batt_voltage() {
     adc_select_input(0);
-    float v_raw = adc_read() * ADC_VOLT_CONV;
-    uint16_t capacity = floorf((LIPO_1S_COE_1 * v_raw) - LIPO_1S_COE_2) * 254;
-    return capacity;    
+    return (adc_read() * ADC_VOLT_CONV);    
 }
 
 void mcu_hal_config_radio_irq(void ( *callback )( void* context ), void* context) {

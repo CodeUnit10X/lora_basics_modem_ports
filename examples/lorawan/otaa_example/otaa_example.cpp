@@ -16,11 +16,11 @@
 #include <csignal>
 
 #include "mcu_hal.h"
-
 #include "smtc_modem_api.h"
 #include "smtc_modem_utilities.h"
 #include "smtc_modem_hal.h"
 #include "smtc_modem_relay_api.h"
+#include "hardware/i2c.h"
 
 
 using namespace std;
@@ -75,6 +75,9 @@ int main(int argc, char** argv) {
 		println("failed to set app key");
 	}
 
+	
+	mcu_hal_sleep_ms(1000);
+
 	while(!done) {
 
 		smtc_modem_status_mask_t modem_status;
@@ -84,7 +87,7 @@ int main(int argc, char** argv) {
 		//if(modem_status != SMTC_MODEM_STATUS_JOINING) {
 		//	if(sleepy_time != 0) {
 		//		println("modem status {}, sleeping for {}", modem_status, sleepy_time);
-				//mcu_hal_sleep_ms(sleepy_time);				
+		//		mcu_hal_sleep_ms(sleepy_time);				
 		//	} 
 		//}
 	}
@@ -113,8 +116,14 @@ void modem_event_cb() {
 	    	case SMTC_MODEM_EVENT_ALARM:
 	    	{
 				println("\033[32m SMTC_MODEM_EVENT_ALARM\033[0m");
-				uint8_t data_up = mcu_hal_read_temp();
-				smtc_modem_request_uplink(0, 1, false, &data_up, 1);   	
+				uint8_t data_up[4];
+				data_up[0] = 0xFF;
+				data_up[1] = mcu_hal_read_temp();
+				
+				uint16_t batt = mcu_hal_read_batt_voltage() * 1000;
+				data_up[2] = batt>>8;
+				data_up[3] = batt&0xFF;				
+				smtc_modem_request_uplink(0, 1, false, data_up, 4);  
 				smtc_modem_alarm_start_timer(UPLINK_PERIOD);
 	    		break;
 	    	}

@@ -158,7 +158,9 @@ int8_t mcu_hal_read_temp();
 /*!
  * @brief read board battery voltage
  */ 
-uint16_t mcu_hal_read_batt_voltage();
+float mcu_hal_read_batt_voltage();
+
+uint8_t mcu_hal_read_battery_level();
 
 /*!
  * @brief get time stamp in milliseconds

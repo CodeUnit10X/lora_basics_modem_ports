@@ -15,7 +15,7 @@ if(${PLATFORM_BOARD} STREQUAL PICO2  OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLA
     pico_enable_stdio_usb(ping_pong 1)
     pico_enable_stdio_uart(ping_pong 0)
     pico_add_extra_outputs(ping_pong)
-    set(ADD_LIBS pico_stdlib hardware_spi hardware_sync hardware_adc pico_rand)     
+    set(ADD_LIBS pico_stdlib hardware_spi hardware_i2c hardware_sync hardware_adc pico_rand)     
 elseif(${PLATFORM_BOARD} STREQUAL LINUX)
     set(ignore "${PICO_BOARD}${PICO_PLATFORM}")
     set(ADD_LIBS "gpiod")     

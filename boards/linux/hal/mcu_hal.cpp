@@ -593,8 +593,8 @@ int8_t mcu_hal_read_temp() try {
     return 0;
 }  
 
-uint16_t mcu_hal_read_batt_voltage() {
-    return 255;
+float mcu_hal_read_batt_voltage() {
+    return 0.0;
 }
 
 void mcu_hal_config_radio_irq(void ( *callback )( void* context ), void* context) {
