@@ -11,7 +11,6 @@ See:  https://github.com/Lora-net/SWL2001
 This is a port for Pico and Raspberry Pi Waveshare Hats listed below, in the Hardware section.  I did not implement FOUTA or STORE and Forward.  But basical LoRaWan
 OTAA and Uplink/Status has been tested.
 
-
 There are a couple of basic examples, one OTAA and a ping pong for general radio RX/TX based directly off the Semtech Example.
 
 ## otaa_example
@@ -68,11 +67,11 @@ PLATFORM_BOARD [ PICO | PICO2 | RP2040_LORA | LINUX ]
 
 ## Build for PICO/PICO2 and RP2040_LORA
 
-I you have one of the PICO/PICO2 Hats or the newer RP2040_LORA you just should need to install the PICO SDK V2.0 and the following:
+I you have one of the above PICO/PICO2 Hats or the newer RP2040_LORA you just should need to install the PICO SDK V2.0 and the following:
 
 <ol>
 	<li>mkdir build_pico2 && cd build_pico2</li>
-	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release ..</li>
+	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON ..</li>
 	<li>make -j 24</li>
 </ol>
 
@@ -97,7 +96,7 @@ Pre-reqs:
 
 <ol>
 	<li>mkdir build_linux && cd build_linux</li>
-	<li>cmake -DPLATFORM_BOARD=LINUX -DRADIO_REGION=US_915 -DCMAKE_TOOLCHAIN_FILE=path/to/your/toolchain.cmake -DCMAKE_BUILD_TYPE=Release ..</li>	
+	<li>cmake -DPLATFORM_BOARD=LINUX -DRADIO_REGION=US_915 -DCMAKE_TOOLCHAIN_FILE=path/to/your/toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON ..</li>	
 	<li>make -j 24</li>	
 </ol>
 
@@ -135,13 +134,9 @@ https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry
 
 https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry_pi_zero_2w/config.txt
 
-
-To build examples standalone (outside Buildroot):
-
-cmake -DPLATFORM_BOARD="LINUX" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/path/to/toolchain -DRADIO_REGION=US_915 ..
-
-
 **note the Linux port is entirely userspace, and thus running on a general purpose OS.  While it seems to work fine on my test system keep in mind your mileage may vary depending on what else is running on your system, as LoRaWan RX timing is pretty precise.**
+
+## 
 
 # System Setup
 

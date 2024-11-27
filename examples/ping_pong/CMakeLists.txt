@@ -23,8 +23,7 @@ else()
     message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|RP2040_LORA|LINUX]")
 endif()
 
-target_sources(ping_pong PUBLIC ${HAL_SRCS})
-target_include_directories(ping_pong PRIVATE ${HAL_INCLUDES} ${MODEM_LIB_INCLUDES})
-target_link_libraries(ping_pong ${ADD_LIBS} ${PLATFORM_LIBS} ${CMAKE_BINARY_DIR}/stage/basic_modem.a)     
+target_include_directories(ping_pong PRIVATE ${lora_basic_modem_ports_INCLUDE_DIRS})
+target_link_libraries(ping_pong ${ADD_LIBS} ${lora_basic_modem_ports_LIBRARY_DIRS}/basic_modem.a ${lora_basic_modem_ports_LIBRARY_DIRS}/liblora_basics_modem_hal.a)     
 
 install(TARGETS ping_pong DESTINATION bin)

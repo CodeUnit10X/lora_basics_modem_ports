@@ -7,7 +7,6 @@ endif()
 project(otaa_uplink LANGUAGES ASM C CXX)
 
 add_executable(otaa_example otaa_example.cpp)
-
 add_dependencies(otaa_example lora_basics_modem_lib)
 
 if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLATFORM_BOARD} STREQUAL RP2040_LORA)
@@ -23,8 +22,8 @@ else()
     message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|RP2040_LORA|LINUX]")
 endif()
 
-target_sources(otaa_example PUBLIC ${HAL_SRCS})
-target_include_directories(otaa_example PRIVATE  ${HAL_INCLUDES} ${MODEM_LIB_INCLUDES})
-target_link_libraries(otaa_example ${ADD_LIBS} ${PLATFORM_LIBS} ${CMAKE_BINARY_DIR}/stage/basic_modem.a)     
+target_include_directories(otaa_example PRIVATE ${lora_basic_modem_ports_INCLUDE_DIRS})
+target_link_libraries(otaa_example ${ADD_LIBS} ${lora_basic_modem_ports_LIBRARY_DIRS}/basic_modem.a ${lora_basic_modem_ports_LIBRARY_DIRS}/liblora_basics_modem_hal.a)     
 
+#only applicable to linux/buildroot
 install(TARGETS otaa_example DESTINATION bin)
