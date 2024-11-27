@@ -6,6 +6,9 @@ endif()
 
 project(ping_pong LANGUAGES ASM C CXX)
 
+#cmake treats uf2 like an archive
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/stage/bin)
+
 add_executable(ping_pong ping_pong.cpp)
 
 add_dependencies(ping_pong lora_basics_modem_lib)
@@ -15,7 +18,7 @@ if(${PLATFORM_BOARD} STREQUAL PICO2  OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLA
     pico_enable_stdio_usb(ping_pong 1)
     pico_enable_stdio_uart(ping_pong 0)
     pico_add_extra_outputs(ping_pong)
-    set(ADD_LIBS pico_stdlib hardware_spi hardware_i2c hardware_sync hardware_adc pico_rand)     
+    set(ADD_LIBS pico_stdlib)     
 elseif(${PLATFORM_BOARD} STREQUAL LINUX)
     set(ignore "${PICO_BOARD}${PICO_PLATFORM}")
     set(ADD_LIBS "gpiod")     

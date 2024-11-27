@@ -6,6 +6,9 @@ endif()
 
 project(otaa_uplink LANGUAGES ASM C CXX)
 
+#cmake treats uf2 like an archive
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/stage/bin)
+
 add_executable(otaa_example otaa_example.cpp)
 add_dependencies(otaa_example lora_basics_modem_lib)
 
@@ -14,7 +17,7 @@ if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLAT
     pico_enable_stdio_usb(otaa_example 1)
     pico_enable_stdio_uart(otaa_example 0)
     pico_add_extra_outputs(otaa_example)
-    set(ADD_LIBS pico_stdlib hardware_spi hardware_i2c hardware_sync hardware_adc pico_rand) 
+    set(ADD_LIBS pico_stdlib) 
 elseif(${PLATFORM_BOARD} STREQUAL LINUX)
     set(ignore "${PICO_BOARD}${PICO_PLATFORM}")
     set(ADD_LIBS gpiod)        
