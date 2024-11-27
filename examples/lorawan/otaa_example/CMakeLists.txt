@@ -25,5 +25,8 @@ endif()
 target_include_directories(otaa_example PRIVATE ${lora_basic_modem_ports_INCLUDE_DIRS})
 target_link_libraries(otaa_example ${ADD_LIBS} ${lora_basic_modem_ports_LIBRARY_DIRS}/basic_modem.a ${lora_basic_modem_ports_LIBRARY_DIRS}/liblora_basics_modem_hal.a)     
 
+add_custom_command(TARGET otaa_example POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:otaa_example> ${CMAKE_BINARY_DIR}/stage/bin)
+
 #only applicable to linux/buildroot
-install(TARGETS otaa_example DESTINATION bin)
+install(TARGETS otaa_example DESTINATION bin ${CMAKE_BINARY_DIR}/stage/bin)

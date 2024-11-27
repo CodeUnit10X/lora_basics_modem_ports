@@ -95,7 +95,9 @@ FetchContent_MakeAvailable(lora_basics_modem_lib)
 
 add_custom_target(lora_basics_modem_lib COMMAND cd ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib && 
                                                 make VERBOSE=no basic_modem_${RADIO_TARGET} MCU_FLAGS=${CMAKE_C_FLAGS} REGION=${RADIO_REGION}  MODEM_TRACE=no MODEM_DEEP_TRACE=no CC=${CMAKE_C_COMPILER} &&
-                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/build/*.a ${STAGED_INSTALL_PREFIX}/lib)
+                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/build/*.a ${STAGED_INSTALL_PREFIX}/lib &&
+                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/smtc_modem_api/*.h ${STAGED_INSTALL_PREFIX}/include &&
+                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/smtc_modem_hal/*.h ${STAGED_INSTALL_PREFIX}/include)
 
 set(pico_lora_basic_modem_lib_DIR ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib)
 

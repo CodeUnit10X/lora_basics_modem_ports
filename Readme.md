@@ -136,7 +136,25 @@ https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry
 
 **note the Linux port is entirely userspace, and thus running on a general purpose OS.  While it seems to work fine on my test system keep in mind your mileage may vary depending on what else is running on your system, as LoRaWan RX timing is pretty precise.**
 
-## 
+## Build Artifacts
+
+Once the build is complete there are several artifacts created for the specified platform:
+
+${CMAKE_BINARY_DIR}/stage/lib
+
+ <ol>
+	<li>basic_modem.a                - The LoRa Basics Modem Library</li>
+	<li>basic_modem_sx1262_notrace.a - Same as above sans trace</li>
+	<li>liblora_basics_modem_hal.a   - The hal and bsp specifics for the platform</li>
+</ol>
+
+API includes for top level smtc hal calls etc found in:
+
+${CMAKE_BINARY_DIR}/stage/include 
+
+If you selected CMake option BUILD_EXAMPLES=ON then the examples will be in 
+
+${CMAKE_BINARY_DIR}/stage/bin
 
 # System Setup
 
