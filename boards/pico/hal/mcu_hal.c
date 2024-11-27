@@ -247,7 +247,13 @@ void mcu_hal_init() {
     gpio_set_dir(PICO_LORA_SX1262_PIN_RESET, GPIO_OUT);
     gpio_disable_pulls(PICO_LORA_SX1262_PIN_RESET);
     gpio_put(PICO_LORA_SX1262_PIN_RESET, 0);
+}
 
+void mcu_hal_exit() {
+
+}
+
+void mcu_hal_i2c_init() {
     i2c_init(i2c_default, 100*1000);
     gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
     gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
@@ -255,8 +261,24 @@ void mcu_hal_init() {
     gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
 }
 
-void mcu_hal_exit() {
+void mcu_hal_i2c_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t* reg_data, uint32_t len) {
+    i2c_write_timeout_us(i2c_default, dev_addr, &reg_addr, 1, false, 100000);
+    i2c_read_timeout_us(i2c_default, dev_addr, reg_data, len, false, 100000);
+}
 
+void mcu_hal_i2c_write(uint8_t dev_addr, uint8_t reg_addr, const uint8_t* reg_data, uint32_t len) {
+    if(len > 254) {
+        return;
+    }
+
+    uint8_t buff_out[255];
+    buff_out[0]=reg_addr;
+    
+    for (int i = 1; i < len+1; i++) {
+        buff_out[i] = reg_data[i-1];    
+    }       
+
+    i2c_write_timeout_us(i2c_default, dev_addr, buff_out, len+1, false, 100000);
 }
 
 uint32_t mcu_hal_get_time_in_ms() {
@@ -265,12 +287,13 @@ uint32_t mcu_hal_get_time_in_ms() {
 }
 
 void mcu_hal_sleep_ms(uint32_t ms) {
+
+#if defined(RP2040_LORA) || defined(PICO)    
+    //low power sleep was hanging rp2040, havent looked into why yet TODO
     busy_wait_ms(ms);
-    //Switching to sleep_ms broke pico 1, while pico 2 worked as expected
-    //pico 1 would get stuck in timer routine.  I know the pico 2 has
-    //2 timer blocks... will have to investigate why this is.  But for now
-    //busy sleep
-    //sleep_ms(ms);
+#else
+    sleep_ms(ms);
+#endif
 }
 
 int mcu_hal_gpio_get(unsigned int gpio) {
@@ -289,7 +312,6 @@ static int64_t alarm_callback(alarm_id_t id, void *user_data) {
     }
     return 0;
 }
-
 
 void mcu_hal_start_timer(uint32_t milliseconds, struct user_data_tm user_data) {
     state_.user_data_ = user_data;
@@ -361,7 +383,13 @@ int8_t mcu_hal_read_temp() {
 
 uint8_t mcu_hal_read_battery_level() {
     auto mv = mcu_hal_read_batt_voltage();
-    return (floorf((LIPO_1S_COE_1 * mv) - LIPO_1S_COE_2) * 254);
+    auto raw_lvl = ((LIPO_1S_COE_1 * mv) - LIPO_1S_COE_2);
+
+    if(raw_lvl >= 1.0) {
+        return 0;
+    } else {
+        return (raw_lvl * 254);
+    }
 }
 
 float mcu_hal_read_batt_voltage() {
@@ -380,4 +408,11 @@ void mcu_hal_config_radio_irq(void ( *callback )( void* context ), void* context
 
 void mcu_hal_clear_radio_irq(void) {
     //This is handled by pico sdk
+}
+
+//syscall stub 
+int getentropy(void* buffer, size_t length)
+{
+  buffer = buffer; length = length;
+  return -1;
 }

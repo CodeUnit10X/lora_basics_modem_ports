@@ -610,6 +610,10 @@ void mcu_hal_clear_radio_irq(void) {
     //This is handled by pico sdk
 }
 
+uint8_t mcu_hal_read_battery_level() {
+    return 0;
+}
+
 int spi_transfer(const uint8_t* tx, uint8_t* rx, std::size_t len, uint16_t delay) {
     spi_ioc_transfer xfer = {
         .tx_buf = (unsigned long)tx,

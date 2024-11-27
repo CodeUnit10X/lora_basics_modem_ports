@@ -23,7 +23,7 @@
 
 using namespace std;
 
-constexpr uint32_t UPLINK_PERIOD = 30;
+constexpr uint32_t UPLINK_PERIOD = 120;
 
 //! Update these accordingly for your chirpstack setup
 constexpr uint8_t joineui[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -34,8 +34,8 @@ void signal_handler(int sig);
 
 void modem_event_cb();
 
-
 auto done = false;
+auto tx_in_progress = false;
 
 int main(int argc, char** argv) {
 
@@ -73,7 +73,6 @@ int main(int argc, char** argv) {
 		println("failed to set app key");
 	}
 
-	
 	mcu_hal_sleep_ms(1000);
 
 	while(!done) {
@@ -82,12 +81,12 @@ int main(int argc, char** argv) {
 		smtc_modem_get_status(0, &modem_status);
 
 		auto sleepy_time = smtc_modem_run_engine();
-		//if(modem_status != SMTC_MODEM_STATUS_JOINING) {
-		//	if(sleepy_time != 0) {
-		//		println("modem status {}, sleeping for {}", modem_status, sleepy_time);
-		//		mcu_hal_sleep_ms(sleepy_time);				
-		//	} 
-		//}
+		if((modem_status == SMTC_MODEM_STATUS_JOINED) && (smtc_modem_is_irq_flag_pending() == false) && !tx_in_progress) {
+			if(sleepy_time != 0) {
+				println("modem status {}, sleeping for {}", modem_status, sleepy_time);
+				mcu_hal_sleep_ms(sleepy_time);				
+			}			
+		}
 	}
 
 	println("cleaning up and exiting");
@@ -107,43 +106,44 @@ void modem_event_cb() {
 			switch(event.event_type) {
 			case SMTC_MODEM_EVENT_RESET: 
 			{
-				println("\033[32m SMTC_MODEM_EVENT_RESET \033[0m");
+				println("\033[32m SMTC_MODEM_EVENT_RESET {} \033[0m", mcu_hal_get_time_in_ms());
 				smtc_modem_join_network(0);
 				break;
 			}
 	    	case SMTC_MODEM_EVENT_ALARM:
 	    	{
-				println("\033[32m SMTC_MODEM_EVENT_ALARM\033[0m");
+				println("\033[32m SMTC_MODEM_EVENT_ALARM {} \033[0m", mcu_hal_get_time_in_ms());
 				uint8_t data_up[4];
-				data_up[0] = 0xFF;
-				data_up[1] = mcu_hal_read_temp();
-				
+				data_up[0] = mcu_hal_read_temp();
+				data_up[1] = mcu_hal_read_battery_level();
 				uint16_t batt = mcu_hal_read_batt_voltage() * 1000;
 				data_up[2] = batt>>8;
 				data_up[3] = batt&0xFF;				
-				smtc_modem_request_uplink(0, 1, false, data_up, 4);  
+				smtc_modem_request_uplink(0, 1, false, data_up, 4);
+				tx_in_progress = true;  
 				smtc_modem_alarm_start_timer(UPLINK_PERIOD);
 	    		break;
 	    	}
 	    	case SMTC_MODEM_EVENT_JOINED:
 	    	{
-				println("\033[32m SMTC_MODEM_EVENT_JOINED\033[0m");
+				println("\033[32m SMTC_MODEM_EVENT_JOINED {} \033[0m", mcu_hal_get_time_in_ms());
 				smtc_modem_alarm_start_timer(UPLINK_PERIOD);
 	    		break;
 	    	}
 	    	case SMTC_MODEM_EVENT_TXDONE:
 	    	{
-				println("\033[32m SMTC_MODEM_EVENT_TXDONE\033[0m");	    	
+				println("\033[32m SMTC_MODEM_EVENT_TXDONE {} \033[0m", mcu_hal_get_time_in_ms());
+				tx_in_progress = false;	    	
 	    		break;
 	    	}
 	    	case SMTC_MODEM_EVENT_DOWNDATA:
 	    	{
-				println("\033[32m SMTC_MODEM_EVENT_DOWNDATA\033[0m");	    	
+				println("\033[32m SMTC_MODEM_EVENT_DOWNDATA {} \033[0m", mcu_hal_get_time_in_ms());	    	
 	    		break;
 	    	}
 	    	case SMTC_MODEM_EVENT_JOINFAIL:
 	    	{
-				println("\033[31m SMTC_MODEM_EVENT_JOINFAIL\033[0m");	    	
+				println("\033[31m SMTC_MODEM_EVENT_JOINFAIL {} \033[0m", mcu_hal_get_time_in_ms());	    	
 	    		break;    		
 	    	}
 	    	default:

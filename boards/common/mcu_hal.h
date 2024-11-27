@@ -59,6 +59,21 @@ void mcu_hal_exit();
 void mcu_hal_spi_init();
 
 /*!
+ * @brief  initialize the I2C interface
+ */ 
+void mcu_hal_i2c_init();
+
+/*!
+ * @brief  Read from I2C device
+ */ 
+void mcu_hal_i2c_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t *reg_data, uint32_t len);
+
+/*!
+ * @brief  Write to I2C device
+ */ 
+void mcu_hal_i2c_write(uint8_t dev_addr, uint8_t reg_addr, const uint8_t *reg_data, uint32_t len);
+
+/*!
  * @brief sleep/suspend execution for ms milliseconds
  * 
  * @param ms number of milliseconds to sleep for

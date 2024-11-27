@@ -175,6 +175,8 @@ void smtc_modem_hal_print_trace( const char* fmt, ... ) {
 
 #if defined(USE_FUOTA)
 
+#error FUOTA is not supported for this platform
+
 uint32_t smtc_modem_hal_get_hw_version_for_fuota( void ) {
     return 0xDEADBEEF;
 }
@@ -234,7 +236,7 @@ uint16_t smtc_modem_hal_flash_get_page_size( void ) {
 }
 
 void smtc_modem_hal_user_lbm_irq( void ) {
-    //bare metal port
+    //used in rtos ports
     return;
 }
 
