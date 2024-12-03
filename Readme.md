@@ -54,51 +54,51 @@ https://www.waveshare.com/wiki/SX1262_XXXM_LoRaWAN/GNSS_HAT
 
 # Building:
 
-I build on Arch Linux but you should have no problems on most Linux Distros, you'll need at minimum cmake, and the build environment for your distro (build-essentials etc), as well as pico-sdk v2.0 if your going to build the pico versions.  
+I build on Arch Linux but you should have no problems on most Linux Distros, you'll need at minimum cmake, and the build environment for your distro (build-essentials etc), as well as pico-sdk v2.0 if your going to build the pico versions.    
 
 **only the sx1262 radio is supported, I have no other radios**
 
 **set your region correctly for your country, in the top level CMakeLists.txt i.e. -DRADIO_REGION=US_915**
 
-You configure the target board via the following:
+**make sure you have the appropriate frequencies for your region as well, if you using ping_pong example**
+
+There are essentially two supported HATs and a Standalone board with integrated RP2040 and sx1262.  The pico hats will work with either version of PICO but you must configure the system correctly for your board.  This is done by setting the cmake variable below:
 
 PLATFORM_BOARD [ PICO | PICO2 | RP2040_LORA | LINUX ]
 
 
 ## Build for PICO/PICO2 and RP2040_LORA
 
-I you have one of the above PICO/PICO2 Hats or the newer RP2040_LORA you just should need to install the PICO SDK V2.0 and the following:
+I you have one of the above Waveshare PICO/PICO2 Hats or the newer RP2040_LORA you just should need to install the PICO SDK V2.0 and do the following the following:
 
 <ol>
 	<li>mkdir build_pico2 && cd build_pico2</li>
-	<li>cmake -DPLATFORM_BOARD="PICO" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON ..</li>
+	<li>cmake -DPLATFORM_BOARD="PICO2" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON ..</li>
 	<li>make -j 24</li>
 </ol>
 
 ## Build for LINUX
 
-If you have the GNSS LORA HAT, and RPI (Zero 2W, 3, 4B, etc)  you can build for your Linux Environment.  You can build it standalone or in the context of buildroot.  If you have a RPI Zero 2W I have 
-a buildroot configuration already setup (see below).  The LINUX Platform is a purely userspace implementation.  
+If you have the GNSS LORA HAT, and RPI (Zero 2W, 3, 4B, etc)  you can build for your Linux Environment.  You can build it standalone or in the context of buildroot.  If you have a RPI Zero 2W I have a buildroot configuration already setup (see below).  The LINUX Platform is a purely userspace implementation.  
 
-**Note:  Lora Basics Modem kinda expects a flash device for storing LoRa context and other stuff, in this
-Linux example we dummy up flash with a file backed mmap.  So there is just a file flash.bin that gets created.  It will persist but you can nuke it if you want to 
+**Note:  Lora Basics Modem expects a flash device for storing LoRa context and other stuff, in this Linux example we dummy up flash with a mapped file.  So there is just a file flash.bin that gets created.  It will persist but you can nuke it if you want to 
 clear things out.**
 
-### Basic Standalone build
-
-**Note:   I've only crosscompiled, so didnt add support for building directly on a rpi.**
+### Basic Standalone build (Crosscompile)
 
 Pre-reqs:
-- cmake
+- cmake 3.22
 - gcc 14
 - libgpiod-dev 1.6.x
-- Kernel configured with UIO and uio_pdrv_genirq
+- Kernel configured with UIO and uio_pdrv_genirq, spidev
 
 <ol>
 	<li>mkdir build_linux && cd build_linux</li>
 	<li>cmake -DPLATFORM_BOARD=LINUX -DRADIO_REGION=US_915 -DCMAKE_TOOLCHAIN_FILE=path/to/your/toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON ..</li>	
 	<li>make -j 24</li>	
 </ol>
+
+### Buildroot Image
 
 For a complete Buildroot configuration to support this with the Waveshare Raspberry Pi GNSS_HAT on a Pi Zero 2W see:
 
@@ -135,6 +135,128 @@ https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry
 https://github.com/CodeUnit10X/animal-farm/blob/main/board/raspberrypi/raspberry_pi_zero_2w/config.txt
 
 **note the Linux port is entirely userspace, and thus running on a general purpose OS.  While it seems to work fine on my test system keep in mind your mileage may vary depending on what else is running on your system, as LoRaWan RX timing is pretty precise.**
+
+### Building on Target (RPI Image)
+
+If you want to build direcly on you PI here are some basic instructions to get it going.  I tested the Waveshare LoRa GNSS HAT on a RPI 4B.
+
+I only tested this on Ubuntu Server images as they have more up to date compiler.  I used the following image:
+
+![image](docs/images/build2os.png)
+
+Setup the build pre-reqs and git the software.
+
+<ol>
+	<li>sudo apt-get install build-essential cmake git libgpiod-dev</li>
+	<li>git clone https://github.com/CodeUnit10X/lora_basics_modem_ports.git</li>
+	<li>cd lora_basics_modem_ports && mkdir build_linux && cd build_linux</li>
+	<li>cmake -DPLATFORM_BOARD=LINUX -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON ..</li>
+</ol>
+
+The Semtech LoRa Basics Modem library isn't really setup to build on target, as its geared more for crosscompiling for an MCU.  So there is some tinkering that has to be done with the common.mk file.  A patch could be created for this is someone so desired...
+
+
+edit:  lora_basics_modem_ports/build_linux/subprojects/Source/lbm_lib/makefiles/common.mk at around line 21, remove $(PREFIX) from AR and SZ
+
+```
+ifdef GCC_PATH
+AR  = $(GCC_PATH)/$(PREFIX)ar
+CC  = $(GCC_PATH)/$(PREFIX)gcc
+CPP = $(GCC_PATH)/$(PREFIX)g++
+AS  = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
+CP  = $(GCC_PATH)/$(PREFIX)objcopy
+SZ  = $(GCC_PATH)/$(PREFIX)size
+else
+AR = ar
+CC = $(PREFIX)gcc
+CPP = $(PREFIX)g++
+AS = $(PREFIX)g++ -x assembler-with-cpp
+CP = $(PREFIX)objcopy
+SZ = size
+endif
+
+```
+
+At that point you can build the library and examples with:
+
+> make
+
+
+You'll need spidev enabled and uio irqs as mentioned previously.  You can read this post which describes how todo it for RPI.
+
+https://superuser.com/questions/1466150/linux-uio-pdrv-genirq-module-does-not-create-device
+
+Essentially just create dts file with the following:
+
+```
+/dts-v1/;
+/plugin/;
+
+/ {
+        fragment@0 {
+                target = <&gpio>;
+                __overlay__ {
+                        mfrc522_uio_pins: mfrc522_uio_pins {
+                                brcm,pins = <4>;
+                                brcm,function = <0>; //<BCM2835_FSEL_GPIO_IN>;
+                                brcm,pull = <0>; //<BCM2835_PUD_OFF>;
+                        };
+                };
+        };
+
+        fragment@1 {
+                target-path = "/";
+                __overlay__ {
+                        mfrc522_uio: mfrc522_uio {
+                                compatible = "mfrc522-uio,generic-uio";
+                                interrupt-parent = <&gpio>;
+                                interrupts = <16 1>; // IRQ_TYPE_EDGE_RISING
+                                pinctrl-names = "default";
+                                pinctrl-0 = <&mfrc522_uio_pins>;
+                                status = "okay";
+                        };
+                };
+        };
+
+        __overrides__ {
+                gpiopin = <&mfrc522_uio_pins>,"brcm,pins:0",
+                        <&mfrc522_uio>,"interrupts:0";
+        };
+};
+
+```
+
+Basically we just put the dio interrupt number in there for the Waveshare hat which is GPIO 16 on the PI.
+
+Create an overlay:
+
+dtc -I dts -O dtb mfrc522-uio-overlay.dts > uio_overlay.dtbo
+
+cp uio_overlay.dtbo /boot/firmware/overlays
+
+Create a file in /etc/modprobe.d/uio_pdrv_genirq.conf with:
+
+```
+options uio_pdrv_genirq of_id=mfrc522-uio,generic-uio
+```
+
+In your /boot/config.txt add the following lines towards the end (I can't recall if I needed both the conf file and dtoverlay entry for uio probably not, anyway...):
+
+```
+dtoverlay=uio_overlay
+dtoverlay=spi0-1cs,cs0_pin=21
+```
+
+You can now reboot and should have:
+
+/dev/uio0
+/dev/spidev0.0
+
+You can now run the examples using sudo:
+
+~$ sudo lora_basics_modem_ports/build_linux/examples/lorawan/otaa_example 
+
+
 
 ## Build Artifacts
 

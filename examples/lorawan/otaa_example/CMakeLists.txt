@@ -6,7 +6,7 @@ endif()
 
 project(otaa_uplink LANGUAGES ASM C CXX)
 
-#cmake treats uf2 like an archive
+#cmake treats uf2 like an archive..
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/stage/bin)
 
 add_executable(otaa_example otaa_example.cpp)
@@ -26,10 +26,10 @@ else()
 endif()
 
 target_include_directories(otaa_example PRIVATE ${lora_basic_modem_ports_INCLUDE_DIRS})
-target_link_libraries(otaa_example ${ADD_LIBS} ${lora_basic_modem_ports_LIBRARY_DIRS}/basic_modem.a ${lora_basic_modem_ports_LIBRARY_DIRS}/liblora_basics_modem_hal.a)     
+target_link_libraries(otaa_example ${lora_basic_modem_ports_LIBRARY_DIRS}/basic_modem.a ${lora_basic_modem_ports_LIBRARY_DIRS}/liblora_basics_modem_hal.a ${ADD_LIBS})     
 
 add_custom_command(TARGET otaa_example POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:otaa_example> ${CMAKE_BINARY_DIR}/stage/bin)
 
 #only applicable to linux/buildroot
-install(TARGETS otaa_example DESTINATION bin ${CMAKE_BINARY_DIR}/stage/bin)
+install(TARGETS otaa_example DESTINATION bin)

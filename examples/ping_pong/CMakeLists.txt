@@ -27,7 +27,7 @@ else()
 endif()
 
 target_include_directories(ping_pong PRIVATE ${lora_basic_modem_ports_INCLUDE_DIRS})
-target_link_libraries(ping_pong ${ADD_LIBS} ${lora_basic_modem_ports_LIBRARY_DIRS}/basic_modem.a ${lora_basic_modem_ports_LIBRARY_DIRS}/liblora_basics_modem_hal.a)     
+target_link_libraries(ping_pong  ${lora_basic_modem_ports_LIBRARY_DIRS}/basic_modem.a ${lora_basic_modem_ports_LIBRARY_DIRS}/liblora_basics_modem_hal.a ${ADD_LIBS})     
 
 add_custom_command(TARGET ping_pong POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:ping_pong> ${CMAKE_BINARY_DIR}/stage/bin)
