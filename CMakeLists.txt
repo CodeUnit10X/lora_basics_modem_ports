@@ -45,12 +45,12 @@ if(${PLATFORM_BOARD} STREQUAL PICO2 OR ${PLATFORM_BOARD} STREQUAL PICO OR ${PLAT
                     radio_hal/sx126x_pico_radio_hal.c
                     radio_hal/ral_sx126x_bsp.c)
 
-    list(TRANSFORM hal_sources PREPEND "${CMAKE_SOURCE_DIR}/boards/pico/")
+    list(TRANSFORM hal_sources PREPEND "${pico_lora_basic_modem_SOURCE_DIR}/boards/pico/")
 
     set(hal_includes common 
                      pico/hal)
 
-    list(TRANSFORM hal_includes PREPEND "${CMAKE_SOURCE_DIR}/boards/")
+    list(TRANSFORM hal_includes PREPEND "${pico_lora_basic_modem_SOURCE_DIR}/boards/")
 
     set(hal_libraries pico_stdlib hardware_spi hardware_i2c hardware_sync hardware_adc pico_rand)
 
@@ -61,9 +61,9 @@ elseif(${PLATFORM_BOARD} STREQUAL LINUX)
                     modem_hal/smtc_modem_hal_linux.c
                     radio_hal/ral_sx126x_bsp.c)
 
-    list(TRANSFORM hal_sources PREPEND "${CMAKE_SOURCE_DIR}/boards/linux/")
+    list(TRANSFORM hal_sources PREPEND "${pico_lora_basic_modem_SOURCE_DIR}/boards/linux/")
 
-    set(hal_includes ${CMAKE_SOURCE_DIR}/boards/common ${CMAKE_SOURCE_DIR}/boards/linux/hal)
+    set(hal_includes ${pico_lora_basic_modem_SOURCE_DIR}/boards/common ${pico_lora_basic_modem_SOURCE_DIR}/boards/linux/hal)
 
 else()
     message(FATAL_ERROR "You must define a PLATFORM_BOARD [PICO|PICO2|RP2040_LORA|LINUX]")
@@ -88,27 +88,30 @@ FetchContent_Declare(
   lora_basics_modem_lib
   GIT_REPOSITORY https://github.com/Lora-net/SWL2001.git
   GIT_TAG        v4.5.0
-  SOURCE_DIR ${CMAKE_BINARY_DIR}/subprojects/Source
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/subprojects/Source/SWL2001
 )
 
 FetchContent_MakeAvailable(lora_basics_modem_lib)
 
-add_custom_target(lora_basics_modem_lib COMMAND cd ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib && 
-                                                make VERBOSE=no basic_modem_${RADIO_TARGET} MCU_FLAGS=${CMAKE_C_FLAGS} REGION=${RADIO_REGION}  MODEM_TRACE=no MODEM_DEEP_TRACE=no CC=${CMAKE_C_COMPILER} &&
-                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/build/*.a ${STAGED_INSTALL_PREFIX}/lib &&
-                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/smtc_modem_api/*.h ${STAGED_INSTALL_PREFIX}/include &&
-                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib/smtc_modem_hal/*.h ${STAGED_INSTALL_PREFIX}/include)
+get_filename_component(TC_PATH ${CMAKE_C_COMPILER} DIRECTORY)
 
-set(pico_lora_basic_modem_lib_DIR ${CMAKE_BINARY_DIR}/subprojects/Source/lbm_lib)
+add_custom_target(lora_basics_modem_lib COMMAND cd ${CMAKE_BINARY_DIR}/subprojects/Source/SWL2001/lbm_lib &&
+                                                make VERBOSE=no basic_modem_${RADIO_TARGET} MCU_FLAGS=${CMAKE_C_FLAGS} REGION=${RADIO_REGION} MODEM_TRACE=no MODEM_DEEP_TRACE=no GCC_PATH=${TC_PATH} &&
+                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/SWL2001/lbm_lib/build/*.a ${STAGED_INSTALL_PREFIX}/lib &&
+                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/SWL2001/lbm_lib/smtc_modem_api/*.h ${STAGED_INSTALL_PREFIX}/include &&
+                                                cp ${CMAKE_BINARY_DIR}/subprojects/Source/SWL2001/lbm_lib/smtc_modem_hal/*.h ${STAGED_INSTALL_PREFIX}/include)
+
+set(pico_lora_basic_modem_lib_DIR ${CMAKE_BINARY_DIR}/subprojects/Source/SWL2001/lbm_lib)
 
 #lower level radio comms, see ping_pong you need stmc_modem_core
-set(modem_lib_includes ${pico_lora_basic_modem_lib_DIR}/smtc_modem_core/radio_drivers/sx126x_driver/src
+set(modem_lib_includes
+                       ${pico_lora_basic_modem_lib_DIR}/smtc_modem_core/radio_drivers/sx126x_driver/src
                        ${pico_lora_basic_modem_lib_DIR}/smtc_modem_core/smtc_ral/src/
                        ${pico_lora_basic_modem_lib_DIR}/smtc_modem_core/smtc_ralf/src/
                        ${pico_lora_basic_modem_lib_DIR}/smtc_modem_api
                        ${pico_lora_basic_modem_lib_DIR}/smtc_modem_hal                                             
                        ${STAGED_INSTALL_PREFIX}/include
-                       ${CMAKE_SOURCE_DIR}/boards/common/)
+                       ${pico_lora_basic_modem_SOURCE_DIR}/boards/common/)
 
 #create the port hal library
 add_library(lora_basics_modem_hal STATIC ${hal_sources})
