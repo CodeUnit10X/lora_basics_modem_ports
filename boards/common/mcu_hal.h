@@ -168,7 +168,7 @@ uint16_t mcu_hal_adc_read(unsigned int channel);
 /*!
  * @brief read board temp
  */ 
-int8_t mcu_hal_read_temp();
+float mcu_hal_read_temp();
 
 /*!
  * @brief read board battery voltage

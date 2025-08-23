@@ -25,7 +25,9 @@ constexpr uint32_t CTX_STORE_AND_FWD_START  = PICO_FLASH_SIZE_BYTES - (FLASH_SEC
 constexpr uint32_t CTX_STORE_AND_FWD_NUM_SECTORS = 8;  
 
 //measured accross voltage divider R1 = 200k, R2 = 100k, Vref 3.3v, 1<<12 ADC
-constexpr float ADC_VOLT_CONV = .00241758f;
+constexpr float ADC_BATT_VOLT_CONV = .00241758f;
+//from pico-sdk manual 12-bit conversion, see section 4.1.1.1. Example
+constexpr float ADC_VOLT_CONV = 3.3f / (1 << 12);
 //derived from 1s lipo voltage-charge table
 constexpr float LIPO_1S_COE_1 = 1.765289931f;
 constexpr float LIPO_1S_COE_2 = 6.326972870f; 
@@ -374,16 +376,17 @@ uint16_t mcu_hal_adc_read(unsigned int channel) {
     return adc_read();
 }
 
-int8_t mcu_hal_read_temp() {
+float mcu_hal_read_temp() {
     adc_select_input(ADC_TEMPERATURE_CHANNEL_NUM);
-    uint16_t v_raw = adc_read() * (3.3 / (1<<12));
-    float temp_celcius = 27 - (v_raw - 0.706) / 0.001721;
-    return (int8_t)temp_celcius;
+    uint16_t adc_temp_raw = adc_read();
+    float temp_celcius = 27.0 - ((adc_temp_raw * ADC_VOLT_CONV) - 0.706) / 0.001721;
+    return temp_celcius;
 }
 
 uint8_t mcu_hal_read_battery_level() {
     auto mv = mcu_hal_read_batt_voltage();
     auto raw_lvl = ((LIPO_1S_COE_1 * mv) - LIPO_1S_COE_2);
+    printf("mcu_hal_read_batt_voltage raw_voltage = %f, raw_level = %f", mv, raw_lvl);
 
     if(raw_lvl >= 1.0) {
         return 0;
@@ -394,7 +397,7 @@ uint8_t mcu_hal_read_battery_level() {
 
 float mcu_hal_read_batt_voltage() {
     adc_select_input(0);
-    return (adc_read() * ADC_VOLT_CONV);    
+    return (adc_read() * ADC_BATT_VOLT_CONV);
 }
 
 void mcu_hal_config_radio_irq(void ( *callback )( void* context ), void* context) {

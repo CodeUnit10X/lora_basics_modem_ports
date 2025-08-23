@@ -576,7 +576,7 @@ uint16_t mcu_hal_adc_read(unsigned int channel) {
     return 0;
 }
 
-int8_t mcu_hal_read_temp() try {
+float mcu_hal_read_temp() try {
 
     if(state_.fd_temp_ == -1) {
         return 0;
