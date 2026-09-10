@@ -74,7 +74,7 @@ I you have one of the above Waveshare PICO/PICO2 Hats or the newer RP2040_LORA y
 <ol>
 	<li>mkdir build_pico2 && cd build_pico2</li>
 	<li>cmake -DPLATFORM_BOARD="PICO2" -DPICO_SDK_PATH=/usr/share/pico-sdk -DRADIO_REGION=US_915 -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON ..</li>
-	<li>make -j 24</li>
+	<li>make</li>
 </ol>
 
 ## Build for LINUX
